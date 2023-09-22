@@ -1,0 +1,11 @@
+{
+  "defaultEnv": { "ENV": "NODE_ENV" },
+  "dev": {
+    "driver": "pg",
+    "host": { "ENV": "PGHOST" },
+    "port": { "ENV": "PGPORT" },
+    "database": { "ENV": "PGDATABASE" },
+    "user": { "ENV": "PGUSER" },
+    "password": { "ENV": "PGPASSWORD" }
+  }
+}
