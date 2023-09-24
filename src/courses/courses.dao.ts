@@ -5,9 +5,9 @@ class CoursesDAO{
   public async createCourse(course: course){
       try{
         const connection = await db.connect();
-        const sql = `INSERT INTO courses(title, description, instructor_id, level_id) 
-                    Values ($1, $2, $3)
-                    returning id, title;
+        const sql = `INSERT INTO courses(tilte, description, instructor_id, level_id) 
+                    Values ($1, $2, $3, $4)
+                    returning id, tilte;
                     `;
         const newCourse = await connection.query(sql, [course.title, course.description, course.instructorId, course.levelId]);
         connection.release();
