@@ -36,7 +36,7 @@ app.all('*',(_req: Request,  res:Response) => {
 });
 // handling error
 app.use((error:IError, _req: Request,  res:Response, _next: NextFunction) => {
-  res.status(error.statusCode || 500).json({ status: "error" , messgae: "Error in server" + error.message});
+  res.status(error.statusCode || 500).json({ status: "error" , messgae: "Error in server " + error.message});
 })
 
 // start server
