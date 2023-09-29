@@ -1,6 +1,7 @@
-enum levels{
-  Beginner = 1,
-  intermediate = 2,
-  expert = 3
+enum Levels {
+  Beginner,
+  Intermediate,
+  Expert
 }
-export default levels;
+
+export default Levels;

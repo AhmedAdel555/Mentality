@@ -6,6 +6,7 @@ import cors from "cors";
 import config from "./utils/envConfig";
 import IError from "./error/error.interface";
 import routes from "./routes";
+import path from "path";
 // create my server
 const app: Application = express();
 /*
@@ -15,6 +16,9 @@ const app: Application = express();
 app.use(cors());
 // json middleware
 app.use(express.json());
+// static files
+app.use('/uploads/banners', express.static(path.join(__dirname, 'uploads', 'banners')));
+app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
 // security middleware
 app.use(helmet());
 // rate-limit middleware
