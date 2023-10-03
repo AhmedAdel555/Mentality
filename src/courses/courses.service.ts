@@ -1,6 +1,6 @@
 import CoursesDAO from "./courses.dao";
-import CourseModel from "./courses.model";
 import AddCourseRequestDTO from "./dtos/add-course-request-dto";
+import AddUpdateCourseModelDTO from "./dtos/add-update-course-model-dto";
 import AllCoursesDataRespose from "./dtos/all-courses-data-respose";
 import ResponseCourseDTO from "./dtos/response-courses-dto";
 import UpdateCourseRequestDTO from "./dtos/update-course-request-dto";
@@ -13,7 +13,7 @@ class CoursesService {
       if (!addCourseRequest.picture) {
         throw new Error("course picture is required");
       }
-      const course: CourseModel = {
+      const course: AddUpdateCourseModelDTO = {
         title: addCourseRequest.title,
         description: addCourseRequest.description,
         requirements: addCourseRequest.requirements,
@@ -72,7 +72,7 @@ class CoursesService {
           throw new Error("this is not your course you can not update course");
         }
       }
-      const course: CourseModel = {
+      const course: AddUpdateCourseModelDTO = {
         id: updateCourseRequest.id,
         title: updateCourseRequest.title,
         description: updateCourseRequest.description,

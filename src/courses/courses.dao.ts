@@ -1,11 +1,11 @@
 import { PoolClient } from "pg";
 import db from "../utils/databaseConfig";
-import CourseModel from "./courses.model";
 import AllCoursesDataRespose from "./dtos/all-courses-data-respose";
 import ReturnedCourseDBDTO from "./dtos/returned-course-db-dto";
+import AddUpdateCourseModelDTO from "./dtos/add-update-course-model-dto";
 class CoursesDAO {
   // add course
-  public async createCourse(course: CourseModel): Promise<CourseModel> {
+  public async createCourse(course: AddUpdateCourseModelDTO): Promise<AddUpdateCourseModelDTO> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
@@ -63,7 +63,7 @@ class CoursesDAO {
   }
 
   // update course
-  public async updateCourse(course: CourseModel): Promise<CourseModel> {
+  public async updateCourse(course: AddUpdateCourseModelDTO): Promise<AddUpdateCourseModelDTO> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
@@ -89,7 +89,7 @@ class CoursesDAO {
     }
   }
   // delete course
-  public async deleteCourse(id: string): Promise<CourseModel> {
+  public async deleteCourse(id: string): Promise<AddUpdateCourseModelDTO> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
@@ -98,6 +98,24 @@ class CoursesDAO {
       const deletedCourse = await connection.query(sql, [id]);
       connection.release();
       return deletedCourse.rows[0];
+    } catch (err) {
+      if (connection) connection.release();
+      throw new Error((err as Error).message);
+    }
+  }
+
+  public async getInstructorCourses(instructorId: string){
+    let connection: PoolClient | null = null;
+    try {
+      connection = await db.connect();
+      const sql = `SELECT courses.id, courses.title, courses.description, courses.requirements, courses.picture ,levels.level_name, 
+      instructors.id as instructor_id, instructors.user_name as instructor_user_name, instructors.title as instructor_title ,instructors.description as instructor_description, instructors.profile_picture as instructor_profile_picture
+      FROM courses JOIN levels ON courses.level_id = levels.id
+      JOIN instructors ON courses.instructor_id = instructors.id
+      where courses.id = $1;`;
+      const course = await connection.query(sql, [instructorId]);
+      connection.release();
+      return course.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new Error((err as Error).message);

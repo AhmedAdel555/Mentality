@@ -1,4 +1,4 @@
-interface CourseModel{
+interface AddUpdateCourseModelDTO{
   id ?:string ,
   title : string,
   description : string,
@@ -8,4 +8,4 @@ interface CourseModel{
   picture: string
 }
 
-export default CourseModel;
+export default AddUpdateCourseModelDTO;
