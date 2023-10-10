@@ -1,15 +1,13 @@
-import CourseModel from "../../../courses/course.model"
 
 interface ResponseInstractorInfoDTO {
   id :string
-  userName:string
+  user_name:string
+  email:string
   title :string
   description : string
-  email :string
-  profilePicture : string
-  courses: CourseModel[]
-  phoneNumber ?:string | null
-  address ?: string | null
+  profile_picture : string
+  phone_number :string | null
+  address : string | null
 }
 
 export default ResponseInstractorInfoDTO;

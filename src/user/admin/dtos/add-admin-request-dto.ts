@@ -1,10 +1,13 @@
+import Roles from "../../../utils/roles.enum"
+
 interface AddAdminRequestDTO {
-    userId:string
-    userRole:string
+    user_id:string
+    user_role:Roles
+    user_pricing_plan_id: string
     email: string
-    userName: string
+    user_name: string
     password: string
-    confirmPassword:string
+    confirm_password:string
 }
 
 export default AddAdminRequestDTO;

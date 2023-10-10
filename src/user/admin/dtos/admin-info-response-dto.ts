@@ -1,9 +1,9 @@
 interface AdminInfoResponseDTO {
    id: string
-   userName:string
+   user_name:string
    email:string
-   profilePicture:string
-   phoneNumber:string
-   address:string
+   profile_picture:string
+   phone_number:string | null
+   address:string | null
 }
 export default AdminInfoResponseDTO;

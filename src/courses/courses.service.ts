@@ -1,109 +1,189 @@
+import InstructorDAO from "../user/instructor/instructor.dao";
+import AppError from "../utils/appError";
+import CourseModel from "./course.model";
 import CoursesDAO from "./courses.dao";
+import ICoursesServices from "./coutsesServices.interface";
 import AddCourseRequestDTO from "./dtos/add-course-request-dto";
-import AddUpdateCourseModelDTO from "./dtos/add-update-course-model-dto";
-import AllCoursesDataRespose from "./dtos/all-courses-data-respose";
-import ResponseCourseDTO from "./dtos/response-courses-dto";
+import DeleteCourseRequestDTO from "./dtos/delete-course-request-dto";
+import ResponseCourseInfoDTO from "./dtos/response-course-info-dto";
+import UpdateCoursePictureRequest from "./dtos/update-course-picture-dto";
 import UpdateCourseRequestDTO from "./dtos/update-course-request-dto";
+import fs from "node:fs";
+import path from "path";
 
-class CoursesService {
-  constructor(private readonly coursesDAO: CoursesDAO) {}
+class CoursesService implements ICoursesServices {
+  constructor(private readonly coursesDAO: CoursesDAO, private readonly instructorDAO: InstructorDAO) {}
 
-  public async createCourse(addCourseRequest: AddCourseRequestDTO) {
+  public async addCourse(addCourseRequest: AddCourseRequestDTO): Promise<void> {
     try {
-      if (!addCourseRequest.picture) {
-        throw new Error("course picture is required");
-      }
-      const course: AddUpdateCourseModelDTO = {
-        title: addCourseRequest.title,
-        description: addCourseRequest.description,
-        requirements: addCourseRequest.requirements,
-        instructor_id: addCourseRequest.userId,
-        level: addCourseRequest.level,
-        picture: `/uploads/banners/${addCourseRequest.picture}`,
-      };
+      if (!addCourseRequest.picture) throw new AppError("course picture is required", 404);
+      const instructor = await this.instructorDAO.getInstructorById(addCourseRequest.user_id);
+      if(!instructor) throw new AppError("Instructor not found", 404);
+      const course: CourseModel = new CourseModel(
+        addCourseRequest.title,
+        addCourseRequest.description,
+        addCourseRequest.requirements,
+        addCourseRequest.level,
+        `/uploads/banners/${addCourseRequest.picture}`,
+        instructor
+      );
       const newCourse = await this.coursesDAO.createCourse(course);
-      if (!newCourse) {
-        throw new Error("there is a problem -> can't create course");
-      }
+      if (!newCourse) throw new AppError("Oops problem when create course", 500);
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
-  public async getAllCourses(): Promise<AllCoursesDataRespose[]> {
+  public async getAllCourses(): Promise<ResponseCourseInfoDTO[]> {
     try {
-      return this.coursesDAO.getAllCourses();
+      const coursesFromDB = await this.coursesDAO.getAllCourses();
+      const courses: ResponseCourseInfoDTO[] = coursesFromDB.map((course, index) => {
+        return {
+          id: course.id, 
+          title: course.title,
+          description: course.description,
+          requirements: course.requirements,
+          level: course.level,
+          picture: course.picture,
+          instructor: {
+            id : course.instructor.id,
+            user_name: course.instructor.user_name,
+            email: course.instructor.email,
+            title : course.instructor.title,
+            description : course.instructor.description,
+            profile_picture : course.instructor.profile_picture,
+            phone_number : course.instructor.phone_number,
+            address : course.instructor.address
+          }
+        };
+      })
+      return courses
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
-  public async getCourse(id: string): Promise<ResponseCourseDTO> {
+  
+
+  public async getCourse(id: string): Promise<ResponseCourseInfoDTO> {
     try {
-      const courseFromDB = await this.coursesDAO.getCourse(id);
-      if (!courseFromDB) throw new Error(`faild to get course check id: ${id}`);
-      const course = {
-        id: courseFromDB.id,
+      const courseFromDB = await this.coursesDAO.getCourseById(id);
+      if (!courseFromDB) throw new AppError(`course not found`, 404);
+      const course: ResponseCourseInfoDTO = {
+        id: courseFromDB.id, 
         title: courseFromDB.title,
         description: courseFromDB.description,
-        instructor: {
-          id: courseFromDB.instructor_id,
-          userName: courseFromDB.instructor_user_name,
-          title: courseFromDB.title,
-          description: courseFromDB.instructor_description,
-          profilePicture: courseFromDB.instructor_profile_picture,
-        },
-        level: courseFromDB.level_name,
         requirements: courseFromDB.requirements,
+        level: courseFromDB.level,
         picture: courseFromDB.picture,
+        instructor: {
+          id : courseFromDB.instructor.id,
+          user_name: courseFromDB.instructor.user_name,
+          email: courseFromDB.instructor.email,
+          title : courseFromDB.instructor.title,
+          description : courseFromDB.instructor.description,
+          profile_picture : courseFromDB.instructor.profile_picture,
+          phone_number : courseFromDB.instructor.phone_number,
+          address : courseFromDB.instructor.address
+        }
       };
       return course;
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
-  public async updateCourse(updateCourseRequest: UpdateCourseRequestDTO) {
+  public async updateCourse(updateCourseRequest: UpdateCourseRequestDTO): Promise<void> {
     try {
-      if (updateCourseRequest.userRole === "Instractor") {
-        const instructorId = (await this.getCourse(updateCourseRequest.id))
-          .instructor.id;
-        if (updateCourseRequest.userId !== instructorId) {
-          throw new Error("this is not your course you can not update course");
-        }
+      const course = await this.coursesDAO.getCourseById(updateCourseRequest.id);
+      if (!course) throw new AppError(`course not found`, 404);
+      if (updateCourseRequest.user_id !== course.instructor.id) {
+        throw new AppError("you can't update this course", 403);
       }
-      const course: AddUpdateCourseModelDTO = {
-        id: updateCourseRequest.id,
-        title: updateCourseRequest.title,
-        description: updateCourseRequest.description,
-        requirements: updateCourseRequest.requirements,
-        instructor_id: updateCourseRequest.userId,
-        level: updateCourseRequest.level,
-        picture: "",
-      };
+      course.title = updateCourseRequest.title;
+      course.description = updateCourseRequest.description;
+      course.requirements = updateCourseRequest.requirements;
+      course.level = updateCourseRequest.level;
       const updatedCourse = await this.coursesDAO.updateCourse(course);
-      if (!updatedCourse)
-        throw new Error(
-          `faild to update course check id: ${updateCourseRequest.id}`
-        );
+      if (!updatedCourse) throw new AppError(`Oops faild to update course`, 500);
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
-  public async deleteCourse(id: string, userId: string, userRole: string) {
-    try {
-      if (userRole === "instructor") {
-        const instructorId = (await this.getCourse(id)).instructor.id;
-        if (userId !== instructorId) {
-          throw new Error("this is not your course you can not delete course");
-        }
+  public async updateCoursePicture(updateCoursePictureRequest:UpdateCoursePictureRequest): Promise<string>{
+    try{
+      if (!updateCoursePictureRequest.picture) throw new AppError("course picture is required", 404);
+      const course = await this.coursesDAO.getCourseById(updateCoursePictureRequest.id);
+      if (!course) throw new AppError(`course not found`, 404);
+      if (updateCoursePictureRequest.user_id !== course.instructor.id) {
+        throw new AppError("you can't update this course", 403);
       }
-      const deletedCourse = await this.coursesDAO.deleteCourse(id);
-      if (!deletedCourse)
-        throw new Error(`faild to delete course check id: ${id}`);
+      const filePath = path.join(
+        __dirname,
+        "../..",
+        course.picture
+      );
+      this.deleteFile(path.join(filePath));
+
+      course.picture = `/uploads/banners/${updateCoursePictureRequest.picture}`;
+      const updatedCourse = await this.coursesDAO.updateCourse(course);
+      if (!updatedCourse) throw new AppError(`Oops faild to update course`, 500);
+      return updatedCourse.picture
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
+    }
+  }
+
+  public async deleteCourse(deleteCourseRequestDTO: DeleteCourseRequestDTO) : Promise<void> {
+    try {
+      const course = await this.coursesDAO.getCourseById(deleteCourseRequestDTO.id);
+      if (!course) throw new AppError(`course not found`, 404);
+      if (deleteCourseRequestDTO.user_id !== course.instructor.id) {
+        throw new AppError("you can't delete this course", 403);
+      }
+      const deletedCourse = await this.coursesDAO.deleteCourseById(deleteCourseRequestDTO.id);
+      if (!deletedCourse) throw new AppError(`Oops faild to update course`, 500);
+      const filePath = path.join(
+        __dirname,
+        "../..",
+        course.picture
+      );
+      this.deleteFile(path.join(filePath));
+    } catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
+    }
+  }
+
+  private deleteFile(filePath: string) {
+    if (fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log("File deleted successfully");
+      });
+    } else {
+      console.log("File not found");
     }
   }
 }

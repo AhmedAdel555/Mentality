@@ -1,7 +1,7 @@
 enum Levels {
-  Beginner,
-  Intermediate,
-  Expert
+  Beginner = "beginner",
+  Intermediate = "intermediate",
+  Expert = "expert"
 }
 
 export default Levels;

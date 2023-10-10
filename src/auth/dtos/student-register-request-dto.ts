@@ -1,8 +1,8 @@
 interface StudentRegisterRequestDto{
     email: string,
-    userName: string,
+    user_name: string,
     password: string,
-    confirmPassword: string
+    confirm_password: string
 }
 
 export default StudentRegisterRequestDto;

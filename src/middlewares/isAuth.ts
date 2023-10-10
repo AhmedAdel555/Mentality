@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Jwt from "jsonwebtoken";
 import config from "../utils/envConfig";
+import AppError from "../utils/appError";
 
 const validateAuth = (req: Request, _res: Response, next: NextFunction) => {
   try {
@@ -11,17 +12,18 @@ const validateAuth = (req: Request, _res: Response, next: NextFunction) => {
       if (token && bearer === "bearer") {
         const decode: any = Jwt.verify(token, config.SECRETJWTKEY as string);
         if (decode) {
-          req.body.userId = decode.id;
-          req.body.userRole = decode.role;
+          req.body.user_id = decode.id;
+          req.body.user_role = decode.role;
+          req.body.user_pricing_plan_id = decode.pricing_plan_id
           next();
         } else {
-          throw new Error("Opps error , please sign in");
+          throw new AppError("Opps error , please sign in", 403);
         }
       } else {
-        throw new Error("Opps error , please sign in");
+        throw new AppError("Opps error , please sign in", 403);
       }
     } else {
-      throw new Error("Opps error , please sign in");
+      throw new AppError("Opps error , please sign in", 403);
     }
   } catch (error) {
     next(error);

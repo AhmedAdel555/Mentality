@@ -1,21 +1,21 @@
 import { PoolClient } from "pg";
 import db from "../utils/databaseConfig";
-import AllCoursesDataRespose from "./dtos/all-courses-data-respose";
-import ReturnedCourseDBDTO from "./dtos/returned-course-db-dto";
-import AddUpdateCourseModelDTO from "./dtos/add-update-course-model-dto";
+import CourseModel from "./course.model";
+import AppError from "../utils/appError";
 class CoursesDAO {
-  // add course
-  public async createCourse(course: AddUpdateCourseModelDTO): Promise<AddUpdateCourseModelDTO> {
+
+  public async createCourse(course: CourseModel): Promise<CourseModel> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `INSERT INTO courses(title, description, instructor_id, level_id, requirements, picture)
-                    Values ($1, $2, $3, (SELECT id from levels where level_name = $4), $5, $6)
-                    returning id, title, description, instructor_id, (SELECT level_name from levels where id = level_id), requirements, picture;`;
+      const sql = `INSERT INTO courses(title, description, instructor_id, level, requirements, picture)
+                    Values ($1, $2, $3, $4, $5, $6)
+                    returning id, title, description, requirements, picture, level, 
+                    (SELECT JSON_OBJECT(instructors.*) FROM instructors WHERE instructors.id = courses.instructor_id) AS instructor;`;
       const newCourse = await connection.query(sql, [
         course.title,
         course.description,
-        course.instructor_id,
+        course.instructor.id,
         course.level,
         course.requirements,
         course.picture,
@@ -24,101 +24,87 @@ class CoursesDAO {
       return newCourse.rows[0];
     } catch (err) {
       if (connection) connection.release();
-      throw new Error((err as Error).message);
+      throw new AppError((err as Error).message, 500);
     }
   }
 
-  // get all courses
-  public async getAllCourses(): Promise<AllCoursesDataRespose[]> {
+
+  public async getAllCourses(): Promise<CourseModel[]> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `SELECT id, title, picture FROM courses;`;
+      const sql = `SELECT id, title, description, requirements, picture, level, 
+                  (SELECT ROW_TO_JSON(instructors) FROM instructors WHERE instructors.id = courses.instructor_id) AS instructor 
+                  FROM courses;`;
       const courses = await connection.query(sql);
       connection.release();
       return courses.rows;
     } catch (err) {
       if (connection) connection.release();
-      throw new Error((err as Error).message);
+      throw new AppError((err as Error).message, 500);
     }
   }
 
   // get one course
-  public async getCourse(id: string): Promise<ReturnedCourseDBDTO> {
+  public async getCourseById(id: string): Promise<CourseModel | undefined> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `SELECT courses.id, courses.title, courses.description, courses.requirements, courses.picture ,levels.level_name, 
-      instructors.id as instructor_id, instructors.user_name as instructor_user_name, instructors.title as instructor_title ,instructors.description as instructor_description, instructors.profile_picture as instructor_profile_picture
-      FROM courses JOIN levels ON courses.level_id = levels.id
-      JOIN instructors ON courses.instructor_id = instructors.id
-      where courses.id = $1;`;
+      const sql = `SELECT id, title, description, requirements, picture, level, 
+      (SELECT ROW_TO_JSON(instructors) FROM instructors WHERE instructors.id = courses.instructor_id) AS instructor 
+      FROM courses
+      where id = $1;`;
       const course = await connection.query(sql, [id]);
       connection.release();
       return course.rows[0];
     } catch (err) {
       if (connection) connection.release();
-      throw new Error((err as Error).message);
+      throw new AppError((err as Error).message, 500);
     }
   }
 
   // update course
-  public async updateCourse(course: AddUpdateCourseModelDTO): Promise<AddUpdateCourseModelDTO> {
+  public async updateCourse(course: CourseModel): Promise<CourseModel | undefined> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       console.log(course.id);
       const sql = `UPDATE courses
-                  SET tilte = $1, description = $2, instructor_id = $3, 
-                  level_id = (SELECT id from levels where level_name = $4), requirements = $5
+                  SET title = $1, description = $2, requirements = $3, 
+                  level = $4 , picture = $5
                   WHERE id = $6
-                  returning id, title, description, instructor_id, (SELECT level_name from levels where id = level_id), requirements, picture;`;
+                  returning id, title, description, requirements, picture, level, 
+                  (SELECT ROW_TO_JSON(instructors) FROM instructors WHERE instructors.id = courses.instructor_id) AS instructor;`;
       const updatedCourse = await connection.query(sql, [
         course.title,
         course.description,
-        course.instructor_id,
-        course.level,
         course.requirements,
+        course.level,
+        course.picture,
         course.id,
       ]);
       connection.release();
       return updatedCourse.rows[0];
     } catch (err) {
       if (connection) connection.release();
-      throw new Error((err as Error).message);
+      throw new AppError((err as Error).message, 500);
     }
   }
+
   // delete course
-  public async deleteCourse(id: string): Promise<AddUpdateCourseModelDTO> {
+  public async deleteCourseById(id: string): Promise<CourseModel  | undefined> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `DELETE FROM courses WHERE id = $1 
-      returning id, title, description, instructor_id, (SELECT level_name from levels where id = level_id), requirements, picture;`;
+      returning id, title, description, requirements, picture, level, 
+      (SELECT ROW_TO_JSON(instructors) FROM instructors WHERE instructors.id = courses.instructor_id) AS instructor;`;
       const deletedCourse = await connection.query(sql, [id]);
       connection.release();
       return deletedCourse.rows[0];
     } catch (err) {
       if (connection) connection.release();
-      throw new Error((err as Error).message);
-    }
-  }
-
-  public async getInstructorCourses(instructorId: string){
-    let connection: PoolClient | null = null;
-    try {
-      connection = await db.connect();
-      const sql = `SELECT courses.id, courses.title, courses.description, courses.requirements, courses.picture ,levels.level_name, 
-      instructors.id as instructor_id, instructors.user_name as instructor_user_name, instructors.title as instructor_title ,instructors.description as instructor_description, instructors.profile_picture as instructor_profile_picture
-      FROM courses JOIN levels ON courses.level_id = levels.id
-      JOIN instructors ON courses.instructor_id = instructors.id
-      where courses.id = $1;`;
-      const course = await connection.query(sql, [instructorId]);
-      connection.release();
-      return course.rows[0];
-    } catch (err) {
-      if (connection) connection.release();
-      throw new Error((err as Error).message);
+      throw new AppError((err as Error).message, 500);
     }
   }
 }

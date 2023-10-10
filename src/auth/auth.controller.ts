@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import AuthService from "./auth.service";
-import AuthDAO from "./auth.dao";
+import StudentDAO from "../user/student/student.dao";
+import InstructorDAO from "../user/instructor/instructor.dao";
+import AdminDAO from "../user/admin/admin.dao";
+import SubscriptionDAO from "../subscription/subscription.dao";
+import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
 class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -25,4 +29,12 @@ class AuthController {
   }
 }
 
-export default new AuthController(new AuthService(new AuthDAO()));
+export default new AuthController(
+  new AuthService(
+    new StudentDAO(),
+    new AdminDAO(),
+    new InstructorDAO(),
+    new SubscriptionDAO(),
+    new PricingPlanDAO()
+  )
+);

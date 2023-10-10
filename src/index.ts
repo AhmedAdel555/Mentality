@@ -4,7 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cors from "cors";
 import config from "./utils/envConfig";
-import IError from "./error/error.interface";
+import AppError from "./utils/appError";
 import routes from "./routes";
 import path from "path";
 // create my server
@@ -17,8 +17,8 @@ app.use(cors());
 // json middleware
 app.use(express.json());
 // static files
-app.use('/uploads/banners', express.static(path.join(__dirname, 'uploads', 'banners')));
-app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
+app.use('/uploads/banners', express.static(path.join(__dirname, '..', 'uploads', 'banners')));
+app.use('/uploads/avatars', express.static(path.join(__dirname, '..', 'uploads', 'avatars')));
 // security middleware
 app.use(helmet());
 // rate-limit middleware
@@ -39,7 +39,7 @@ app.all('*',(_req: Request,  res:Response) => {
   res.status(404).json({ status: "error", message: "Sorry this api not found 😂"});
 });
 // handling error
-app.use((error:IError, _req: Request,  res:Response, _next: NextFunction) => {
+app.use((error:AppError, _req: Request,  res:Response, _next: NextFunction) => {
   res.status(error.statusCode || 500).json({ status: "error" , messgae: "Error in server " + error.message});
 })
 

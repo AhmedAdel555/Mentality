@@ -1,14 +1,18 @@
 import { Router, Request, Response, NextFunction } from "express";
 import AuthController from "../../auth/auth.controller";
-import Roles from "../../auth/roles.enum";
+import Roles from "../../utils/roles.enum";
 import { body } from "express-validator";
-import validateResult from "../../middlewares/validateResulte";
+import validateResult from "../../middlewares/validateInput";
 const routes = Router();
 
 routes.post(
   "/login",
   [
-    body("email").trim().isEmail(),
+    body("email")
+      .trim()
+      .isEmail()
+      .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
+      .withMessage("please enter an valide email"),
     body("password")
       .trim()
       .matches(
@@ -28,8 +32,12 @@ routes.post(
 routes.post(
   "/register",
   [
-    body("email").trim().isEmail(),
-    body("userName").trim().isLength({ min: 5 }),
+    body("email")
+      .trim()
+      .isEmail()
+      .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
+      .withMessage("please enter a valide email"),
+    body("user_name").trim().isLength({ min: 5 }),
     body("password")
       .trim()
       .matches(
@@ -38,7 +46,7 @@ routes.post(
       .withMessage(
         `password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character`
       ),
-    body("confirmPassword").custom((value, { req }) => {
+    body("confirm_password").custom((value, { req }) => {
       return value === req.body.password;
     }),
   ],

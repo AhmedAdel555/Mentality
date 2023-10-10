@@ -1,16 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import CoursesService from "./courses.service";
 import CoursesDAO from "./courses.dao";
+import InstructorDAO from "../user/instructor/instructor.dao";
 
 class CoursesContoller {
   constructor(private readonly courseService: CoursesService) {}
 
   public async createCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.courseService.createCourse({
-        ...req.body,
-        picture: req.file?.filename,
-      });
+      await this.courseService.addCourse({...req.body,picture: req.file?.filename,});
       return res.status(201).json({ status: "success", data: null });
     } catch (error) {
       next(error);
@@ -28,8 +26,8 @@ class CoursesContoller {
 
   public async getCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      const newCourse = await this.courseService.getCourse(req.params.courseId);
-      return res.status(200).json({ status: "success", data: newCourse });
+      const course = await this.courseService.getCourse(req.params.course_id);
+      return res.status(200).json({ status: "success", data: course });
     } catch (error) {
       next(error);
     }
@@ -37,27 +35,28 @@ class CoursesContoller {
 
   public async updateCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      const newCourse = await this.courseService.updateCourse({
-        ...req.body,
-        id: req.params.courseId,
-      });
-      return res.status(201).json({ status: "success", data: newCourse });
+      await this.courseService.updateCourse({...req.body,id: req.params.course_id});
+      return res.status(201).json({ status: "success", data: null});
     } catch (error) {
       next(error);
     }
   }
 
+  public async updateCoursePicture(req: Request, res: Response, next: NextFunction) {
+    try {
+      const picture = await this.courseService.updateCoursePicture({...req.body, id: req.params.course_id, picture: req.file?.filename,});
+      return res.status(201).json({ status: "success", data: picture });
+    } catch (error) {
+      next(error);
+    }
+  }
   public async deleteCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.courseService.deleteCourse(
-        req.params.courseId,
-        req.body.userId,
-        req.body.userRole
-      );
+      await this.courseService.deleteCourse({...req.body, id: req.params.course_id});
       return res.status(201).json({ status: "success", data: null });
     } catch (error) {
       next(error);
     }
   }
 }
-export default new CoursesContoller(new CoursesService(new CoursesDAO()));
+export default new CoursesContoller(new CoursesService(new CoursesDAO(), new InstructorDAO()));

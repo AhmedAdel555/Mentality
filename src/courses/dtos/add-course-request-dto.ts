@@ -1,11 +1,15 @@
+import Roles from "../../utils/roles.enum";
+import Levels from "../levels.enum";
+
 interface AddCourseRequestDTO {
-    title: string,
-    description : string,
-    userId : string,
-    userRole: string,
-    level: string,
-    requirements: string,
-    picture: string | undefined,
+  user_id:string
+  user_role:Roles
+  user_pricing_plan_id: string
+  title: string,
+  description : string,
+  level: Levels,
+  requirements: string,
+  picture: string,
 }
 
 export default AddCourseRequestDTO;
