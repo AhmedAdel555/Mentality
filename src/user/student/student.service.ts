@@ -1,7 +1,6 @@
-import ChangeProfilePictureRequsetDTO from "./dtos/change-profile-picture-requset-dto";
-import ResetPasswordRequestDTO from "./dtos/reset-password-request-dto";
+import ChangeProfilePictureRequsetDTO from "../dtos/change-profile-picture-requset-dto";
+import ResetPasswordRequestDTO from "../dtos/reset-password-request-dto";
 import ResponeStudentInfoDTO from "./dtos/respone-student-info-dto";
-import ResponseAllStudentsDTO from "./dtos/response-all-students-dto";
 import UpdateStudentInfoDTO from "./dtos/update-student-info-dto";
 import StudentDAO from "./student.dao";
 import IStudentService from "./studentService.interface";
@@ -9,25 +8,36 @@ import bcrypt from "bcrypt";
 import config from "../../utils/envConfig";
 import fs from "node:fs";
 import path from "node:path";
+import AppError from "../../utils/appError";
 
 class StudentService implements IStudentService{
   constructor(private readonly studentDAO: StudentDAO){};
-  public async getAllStudents(): Promise<ResponseAllStudentsDTO[]> {
+
+  public async getAllStudents(): Promise<ResponeStudentInfoDTO[]> {
     try{
       const studentsFromDB = await this.studentDAO.getAllStudents();
-      const students: ResponseAllStudentsDTO[] = studentsFromDB.map((student, index) => {
-        return {id: student.id, user_name: student.user_name, 
+      const students: ResponeStudentInfoDTO[] = studentsFromDB.map((student, index) => {
+        return {
+          id: student.id, 
+          user_name: student.user_name, 
+          email: student.email,
+          phone_number: student.phone_number,
+          address: student.address,
+          points: student.points,
           profile_picture: student.profile_picture}
       })
       return students;
-    }catch(err){
-      throw new Error((err as Error).message);
+    }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
   public async getStudent(id: string): Promise<ResponeStudentInfoDTO> {
      try{
-      const studentFromDB = await this.studentDAO.getStudent(id);
-     if(!studentFromDB) throw new Error("student not found");
+      const studentFromDB = await this.studentDAO.getStudentById(id);
+     if(!studentFromDB) throw new AppError("student not found", 404);
      const student: ResponeStudentInfoDTO = {
         id: studentFromDB.id,
         user_name: studentFromDB.user_name,
@@ -38,66 +48,65 @@ class StudentService implements IStudentService{
         points: studentFromDB.points,
      }
      return student;
-     }catch(err){
-      throw new Error((err as Error).message);
+     }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
   public async updateStudent(updateStudentInfoDTO: UpdateStudentInfoDTO): Promise<void> {
     try{
-      const studentFromDB = await this.studentDAO.getStudent(updateStudentInfoDTO.userId);
-      if(!studentFromDB) throw new Error("student not found");
+      const studentFromDB = await this.studentDAO.getStudentById(updateStudentInfoDTO.user_id);
+      if(!studentFromDB) throw new AppError("student not found", 404);
       studentFromDB.email = updateStudentInfoDTO.email;
       studentFromDB.address = updateStudentInfoDTO.address;
-      studentFromDB.phone_number = updateStudentInfoDTO.phoneNumber
-      studentFromDB.user_name = updateStudentInfoDTO.userName
+      studentFromDB.phone_number = updateStudentInfoDTO.phone_number
+      studentFromDB.user_name = updateStudentInfoDTO.user_name
       const updatedStudent = await this.studentDAO.updateStudent(studentFromDB);
-      if(!updatedStudent) throw new Error("failed not found");
-    }catch(err){
-      throw new Error((err as Error).message);
+      if(!updatedStudent) throw new AppError("failed to update", 500);
+    }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
   public async resetPassword(
     resetPasswordRequestDTO: ResetPasswordRequestDTO
   ): Promise<void> {
     try {
-      // get admin by id
-      const student = await this.studentDAO.getStudent(
-        resetPasswordRequestDTO.userId
-      );
-      if (!student) throw new Error("student is not exist");
+      const student = await this.studentDAO.getStudentById(resetPasswordRequestDTO.user_id);
+      if(!student) throw new AppError("instructor not found", 404);
 
-      // check for old password
-      if (
-        !bcrypt.compareSync(
-          `${resetPasswordRequestDTO.oldPassword}${config.SECRETHASHINGKEY}`,
-          student.password
-        )
-      ) {
-        throw new Error("password is not correct");
+      if (!bcrypt.compareSync(`${resetPasswordRequestDTO.old_password}${config.SECRETHASHINGKEY}`,student.password)) {
+        throw new AppError("password is incorrect", 401);
       }
-      // encript new password
+
       student.password = bcrypt.hashSync(
         `${resetPasswordRequestDTO.password}${config.SECRETHASHINGKEY}`,
         10
       );
-      // update student
-      const updatedStudent = await this.studentDAO.updateStudentPassword(student);
-      if (updatedStudent.password !== student.password) throw new Error("oops failed to reset password");
+
+      const updatedStudent = await this.studentDAO.updateStudent(student);
+      if(!updatedStudent) throw new AppError('oops error', 500);
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
   public async changeProfilePicture(
     changeProfilePictureRequsetDTO: ChangeProfilePictureRequsetDTO
   ): Promise<string> {
     try {
-      // get admin with the id
-      const student = await this.studentDAO.getStudent(
-        changeProfilePictureRequsetDTO.userId
-      );
-      if (!student) throw new Error("student is not exist");
-      // if profile picture not the defult
-      //  delete it
+      if (!changeProfilePictureRequsetDTO.profile_picture)
+          throw new AppError("Oops!", 401);
+
+        const student = await this.studentDAO.getStudentById(changeProfilePictureRequsetDTO.user_id);
+        if(!student) throw new AppError("instructor not found", 404);
+
       if (student.profile_picture !== "/uploads/avatars/defult.jpg") {
         const filePath = path.join(
           __dirname,
@@ -106,14 +115,16 @@ class StudentService implements IStudentService{
         );
         this.deleteFile(filePath);
       }
-      // update student
-      if(!changeProfilePictureRequsetDTO.profilePicture) throw new Error('oops error');
-      student.profile_picture = `/uploads/avatars/${changeProfilePictureRequsetDTO.profilePicture}`;
-      const updatedStudent = await this.studentDAO.updateStudentProfilePicture(student);
-      if (!updatedStudent) throw new Error("oops failed to update");
+
+      student.profile_picture = `/uploads/avatars/${changeProfilePictureRequsetDTO.profile_picture}`;
+      const updatedStudent = await this.studentDAO.updateStudent(student);
+      if(!updatedStudent) throw new AppError('oops error', 500);
       return updatedStudent.profile_picture;
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
@@ -130,12 +141,18 @@ class StudentService implements IStudentService{
       console.log("File not found");
     }
   }
+
   public async deleteStudent(id: string): Promise<void> {
     try{
-      const deletedStudent = await this.studentDAO.deleteStudent(id);
-      if(!deletedStudent) throw new Error("failed not found");
-    }catch(err){
-      throw new Error((err as Error).message);
+      const student = await this.studentDAO.getStudentById(id);
+      if(!student) throw new AppError("instructor not found", 404);
+      const deletedStudent = await this.studentDAO.deleteStudentById(id);
+      if(!deletedStudent) throw new AppError("Oops something went wrong", 505);
+    }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 }

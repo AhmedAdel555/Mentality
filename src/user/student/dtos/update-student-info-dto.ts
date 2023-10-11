@@ -1,10 +1,12 @@
+import Roles from "../../../utils/roles.enum"
+
 interface UpdateStudentInfoDTO {
-  userName:string
+  user_name:string
   email:string
-  phoneNumber:string | null
+  phone_number:string | null
   address:string | null
-  userId:string
-  userRole:string 
+  user_id:string
+  user_role:Roles
 }
 
 export default UpdateStudentInfoDTO;

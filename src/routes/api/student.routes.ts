@@ -1,52 +1,62 @@
 import { Router, Request, Response, NextFunction } from "express";
 import studentController from "../../user/student/student.controller";
 import { body, param } from "express-validator";
-import validateResult from "../../middlewares/validateInput";
+import validateInput from "../../middlewares/validateInput";
+import validateFileUpload from "../../middlewares/validateFileUpload";
 import isAuth from "../../middlewares/isAuth";
 import allowTo from "../../middlewares/allowTo";
 import uploadProfilePicture from "../../utils/uploadProfilePictures";
+import Roles from "../../utils/roles.enum";
 const routes = Router();
 
-routes.route('/')
-.get(isAuth,allowTo('Admin', 'Instructor'),(req: Request, res: Response, next: NextFunction) => {
-  studentController.getAllStudent(req, res, next);
-})
-.patch([
-  body("email").trim().isEmail(),
-  body("userName").trim().isLength({ min: 5 }),
-  body("phoneNumber").custom((value, { req }) => {
-    return value === null || typeof value === "string";
-  }),
-  body("address").custom((value, { req }) => {
-    return value === null || typeof value === "string";
-  }),
-],
-validateResult,
-isAuth,
-allowTo("Student"),
-(req: Request, res: Response, next: NextFunction) => {
-  studentController.updateStudent(req, res, next);
-})
+routes
+  .route("/")
+  .get(
+    isAuth,
+    allowTo(Roles.Admin),
+    (req: Request, res: Response, next: NextFunction) => {
+      studentController.getAllStudents(req, res, next);
+    }
+  )
+  .patch(
+    [
+      body("email").trim().isEmail(),
+      body("user_name").trim().isLength({ min: 5 }),
+      body("phone_number").custom((value, { req }) => {
+        return value === null || typeof value === "string";
+      }),
+      body("address").custom((value, { req }) => {
+        return value === null || typeof value === "string";
+      }),
+    ],
+    validateInput,
+    isAuth,
+    allowTo(Roles.Student),
+    (req: Request, res: Response, next: NextFunction) => {
+      studentController.updateStudent(req, res, next);
+    }
+  );
 
-routes.route('/:studentId')
-.get(
-  [
-    param('studentId').isUUID()
-  ],
-  validateResult,
-  isAuth,
-  (req: Request, res: Response, next: NextFunction) => {
-    studentController.getStudent(req, res, next);
-  }
-).delete([
-  param('studentId').isUUID()
-],
-validateResult,
-isAuth,
-allowTo('Admin'),
-(req: Request, res: Response, next: NextFunction) => {
-  studentController.deleteStudent(req, res, next);
-})
+routes
+  .route("/:student_id")
+  .get(
+    [param("student_id").isUUID()],
+    validateInput,
+    isAuth,
+    allowTo(Roles.Admin, Roles.Instructor, Roles.Student),
+    (req: Request, res: Response, next: NextFunction) => {
+      studentController.getStudent(req, res, next);
+    }
+  )
+  .delete(
+    [param("student_id").isUUID()],
+    validateInput,
+    isAuth,
+    allowTo(Roles.Admin),
+    (req: Request, res: Response, next: NextFunction) => {
+      studentController.deleteStudent(req, res, next);
+    }
+  );
 
 routes.patch(
   "/reset-password",
@@ -63,9 +73,9 @@ routes.patch(
       return value === req.body.password;
     }),
   ],
-  validateResult,
+  validateInput,
   isAuth,
-  allowTo("Admin"),
+  allowTo(Roles.Student),
   (req: Request, res: Response, next: NextFunction) => {
     studentController.resetPassword(req, res, next);
   }
@@ -73,9 +83,10 @@ routes.patch(
 
 routes.patch(
   "/change-profile-picture",
+  uploadProfilePicture.single("profile_picture"),
+  validateFileUpload,
   isAuth,
-  allowTo("Admin"),
-  uploadProfilePicture.single("profilePicture"),
+  allowTo(Roles.Student),
   (req: Request, res: Response, next: NextFunction) => {
     studentController.changeProfilePicture(req, res, next);
   }

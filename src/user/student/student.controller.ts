@@ -5,7 +5,7 @@ import StudentDAO from "./student.dao";
 class StudentController{
   constructor(private readonly studentService: StudentService){};
 
-  public async getAllStudent(req: Request , res: Response, next: NextFunction){
+  public async getAllStudents(req: Request , res: Response, next: NextFunction){
       try{
         const students = await this.studentService.getAllStudents();
         res.status(200).json({'status': 'success', data: students});
@@ -16,7 +16,7 @@ class StudentController{
 
   public async getStudent(req: Request , res: Response, next: NextFunction){
     try{
-      const student = await this.studentService.getStudent(req.params.studentId);
+      const student = await this.studentService.getStudent(req.params.student_id);
       res.status(200).json({'status': 'success', data: student});
     }catch(error){
       next(error);
@@ -49,7 +49,7 @@ class StudentController{
     try {
       const profilePicture = await this.studentService.changeProfilePicture({
         ...req.body,
-        profilePicture: req.file?.filename,
+        profile_picture: req.file?.filename,
       });
       res.status(200).json({ status: "success", data: profilePicture });
     } catch (error) {
@@ -59,7 +59,7 @@ class StudentController{
 
   public async deleteStudent(req: Request, res: Response, next: NextFunction){
     try{
-      await this.studentService.deleteStudent(req.body.id);
+      await this.studentService.deleteStudent(req.params.student_id);
       res.status(200).json({ status: "success", data: null });
     }catch(error){
       next(error)

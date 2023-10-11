@@ -172,7 +172,10 @@ class InstructorService implements IInstructorService {
       if(!updatedInstructor) throw new AppError('oops error', 500);
       return updatedInstructor.profile_picture;
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
@@ -193,7 +196,10 @@ class InstructorService implements IInstructorService {
       })
       return instructorCourses
     } catch (err) {
-      throw new Error((err as Error).message);
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
