@@ -14,8 +14,7 @@ routes.use('/admins', AdminRoutes);
 routes.use('/instructors', InstructorRoutes);
 routes.use('/courses', CoursesRoutes);
 routes.use('/pricing-plans', PricingPlansRoutes);
-routes.use('/students', StudentRoutes);
 routes.use('/subscriptions', SubscriptionsRoutes);
-
+routes.use('/students', StudentRoutes);
 
 export default routes;

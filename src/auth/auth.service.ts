@@ -53,18 +53,10 @@ class AuthService {
             user.password
           )
         ) {
-          const subscriptions =
-            await this.subscriptionDAO.getAllSubscriptions();
-          const userSubscription = subscriptions.filter(
-            (subscription, index) => {
-              return subscription.student.id === user.id;
-            }
-          );
           const token = Jwt.sign(
             {
               id: user.id,
               role: loginRequestDto.role,
-              pricing_plan_id: userSubscription[0].pricing_plan.id,
             },
             config.SECRETJWTKEY as string,
             { expiresIn: "24h" }
@@ -103,13 +95,12 @@ class AuthService {
       const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(1);
       if (!pricingPlan) throw new AppError("oops there is a problem", 404);
       const subscription = new SubscriptionModel(newStudent, pricingPlan);
-      const newSubscription =
-        this.subscriptionDAO.createSubscription(subscription);
+      const newSubscription =this.subscriptionDAO.createSubscription(subscription);
       console.log(newSubscription);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
-        (err as AppError).statusCode || 500
+        (err as AppError).statusCode
       );
     }
   }

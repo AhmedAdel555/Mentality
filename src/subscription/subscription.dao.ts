@@ -11,13 +11,13 @@ class SubscriptionDAO{
       connection = await db.connect();
       const sql = `INSERT INTO subscriptions (student_id, pricing_plan_id, date)
       VALUES ($1, $2, DATE $3)
-      returning id, (SELECT ROW_TO_JSON(students) FROM students WHERE students.id = subscriptions.students_id) AS student,
+      returning id, (SELECT ROW_TO_JSON(students) FROM students WHERE students.id = subscriptions.student_id) AS student,
       (SELECT ROW_TO_JSON(pricing_plans) FROM pricing_plans WHERE pricing_plans.id = subscriptions.pricing_plan_id) AS pricing_plan,
       date ;`;
       const newSubscription = await connection.query(sql, [
         subscription.student.id,
         subscription.pricing_plan.id,
-        subscription.date
+        subscription.date.toISOString().split('T')[0]
       ]);
       connection.release();
       return newSubscription.rows[0];

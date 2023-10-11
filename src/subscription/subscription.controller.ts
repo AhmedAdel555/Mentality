@@ -7,9 +7,9 @@ import SubscriptionServices from "./subscription.service";
 class SubscriptionController {
     constructor(private readonly subscriptionServices: SubscriptionServices){};
 
-    public async createSubscription(req: Request, res: Response, next: NextFunction){
+    public async addSubscription(req: Request, res: Response, next: NextFunction){
         try{
-          await this.subscriptionServices.createSubscription({...req.body});
+          await this.subscriptionServices.addSubscription({...req.body});
           res.status(201).json({status: "success", data: null});
         }catch (error) {
           next(error);
@@ -27,28 +27,21 @@ class SubscriptionController {
 
     public async getSubscription(req: Request, res: Response, next: NextFunction){
       try{
-        const subscription = await this.subscriptionServices.getSubscription(req.params.subscriptionId);
+        const subscription = await this.subscriptionServices.getSubscription(req.params.subscription_id);
         res.status(201).json({status: "success", data: subscription});
       }catch (error) {
         next(error);
       }
     }
-
-    
 
     public async deleteSubscription(req: Request, res: Response, next: NextFunction){
       try{
-        const subscription = await this.subscriptionServices.deleteSubscription(req.params.subscriptionId);
-        res.status(201).json({status: "success", data: subscription});
+        await this.subscriptionServices.deleteSubscription(req.params.subscription_id);
+        res.status(201).json({status: "success", data: null});
       }catch (error) {
         next(error);
       }
     }
-
-
-
-
-
 
 }
 export default new SubscriptionController(new SubscriptionServices(new SubscriptionDAO(), new StudentDAO(), new PricingPlanDAO()));

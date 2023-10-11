@@ -13,7 +13,10 @@ routes
   .route("/")
   .post(
     [
-      body("email").trim().isEmail(),
+      body("email").trim()
+      .isEmail()
+      .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
+      .withMessage("please enter an valide email"),
       body("user_name").trim().isLength({ min: 5 }),
       body("password")
         .trim()

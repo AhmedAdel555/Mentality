@@ -4,7 +4,6 @@ interface RequestUpdatePricingPlanDTO {
   id: number
   user_id:string
   user_role:Roles
-  user_pricing_plan_id: string
   plan_name:string
   attributes:string
   price:number

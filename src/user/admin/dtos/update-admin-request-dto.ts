@@ -3,7 +3,6 @@ import Roles from "../../../utils/roles.enum"
 interface UpdateAdminRequestDTO{
   user_id:string
   user_role:Roles
-  user_pricing_plan_id: string
   email: string
   user_name: string
   password: string

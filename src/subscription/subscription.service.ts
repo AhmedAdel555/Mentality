@@ -1,6 +1,7 @@
 import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
 import StudentDAO from "../user/student/student.dao";
-import SubcriptionResponsDTO from "./dtos/all-subcriptions-respons-dto";
+import AppError from "../utils/appError";
+import SubcriptionResponsDTO from "./dtos/subcription-respons-dto";
 import CreateSubscriptionRequestDTO from "./dtos/create-subscription-request-dto";
 import SubscriptionDAO from "./subscription.dao";
 import SubscriptionModel from "./subscription.model";
@@ -13,23 +14,27 @@ class SubscriptionServices implements ISubscriptionServices{
     private readonly planPricingDAO:  PricingPlanDAO
     ){};
 
-  public async createSubscription(createSubscriptionRequestDTO: CreateSubscriptionRequestDTO): Promise<void> {
+  public async addSubscription(createSubscriptionRequestDTO: CreateSubscriptionRequestDTO): Promise<void> {
      try{
-      const student = await this.studentDAO.getStudent(createSubscriptionRequestDTO.studentId);
-     if(!student) throw new Error("student not found");
-     const pricingPlan = await this.planPricingDAO.getPricingPlan(createSubscriptionRequestDTO.pricinPlanId);
-     if(!pricingPlan) throw new Error("pricing plan not found");
+     const student = await this.studentDAO.getStudentByEmail(createSubscriptionRequestDTO.student_email);
+     if(!student) throw new AppError("student not found", 404);
+     const pricingPlan = await this.planPricingDAO.getPricingPlanById(createSubscriptionRequestDTO.pricing_plan_id);
+     if(!pricingPlan) throw new AppError("pricing plan not found", 404);
      const subscription = new SubscriptionModel(student, pricingPlan);
      const newSubscription = this.subscriptionDAO.createSubscription(subscription);
-     if(!newSubscription) throw new Error("failed to make subscription");
-     }catch(err){
-      throw new Error((err as Error).message);
+     if(!newSubscription) throw new AppError("failed to make subscription", 500);
+     }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
+
   public async getAllSubscriptions(): Promise<SubcriptionResponsDTO[]> {
      try{
       const subscriptionsFromDB = await this.subscriptionDAO.getAllSubscriptions();
-     const subcriptions:SubcriptionResponsDTO[]  = subscriptionsFromDB.map((subscription, index) => {
+      const subcriptions:SubcriptionResponsDTO[]  = subscriptionsFromDB.map((subscription, index) => {
          return {
             id: subscription.id,
             student: {
@@ -46,14 +51,18 @@ class SubscriptionServices implements ISubscriptionServices{
          }
      })
      return subcriptions;
-     }catch(err){
-      throw new Error((err as Error).message);
+     }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
+
   public async getSubscription(id: string): Promise<SubcriptionResponsDTO> {
     try{
-      const subscription = await this.subscriptionDAO.getSubscription(id);
-      if(!subscription) throw new Error("failed to find subcription");
+      const subscription = await this.subscriptionDAO.getSubscriptionById(id);
+      if(!subscription) throw new AppError("failed to find subcription", 404);
       return {
         id: subscription.id,
         student: {
@@ -68,17 +77,25 @@ class SubscriptionServices implements ISubscriptionServices{
        pricing_plan: subscription.pricing_plan,
        date: subscription.date
      }
-    }catch(err){
-      throw new Error((err as Error).message);
+    }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
   public async deleteSubscription(id: string): Promise<void> {
     try{
-      const deletedSubscription = await this.subscriptionDAO.deleteSubscription(id);
-      if(!deletedSubscription) throw new Error("failed to delete subscription");
-    }catch(err){
-      throw new Error((err as Error).message);
+      const subscription = await this.subscriptionDAO.getSubscriptionById(id);
+      if(!subscription) throw new AppError("failed to find subcription", 404);
+      const deletedSubscription = await this.subscriptionDAO.getSubscriptionById(id);
+      if(!deletedSubscription) throw new AppError("failed to delete subscription", 505);
+    }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
     }
   }
 
