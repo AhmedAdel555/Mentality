@@ -11,7 +11,7 @@ class CoursesDAO {
       const sql = `INSERT INTO courses(title, description, instructor_id, level, requirements, picture)
                     Values ($1, $2, $3, $4, $5, $6)
                     returning id, title, description, requirements, picture, level, 
-                    (SELECT JSON_OBJECT(instructors.*) FROM instructors WHERE instructors.id = courses.instructor_id) AS instructor;`;
+                  (SELECT ROW_TO_JSON(instructors) FROM instructors WHERE instructors.id = courses.instructor_id) AS instructor;`;
       const newCourse = await connection.query(sql, [
         course.title,
         course.description,
