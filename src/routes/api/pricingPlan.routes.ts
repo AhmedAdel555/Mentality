@@ -13,7 +13,9 @@ routes
     [
       body("plan_name").trim().notEmpty().isLength({ min: 3 }),
       body("attributes").trim().notEmpty(),
-      body("price").trim().isNumeric(),
+      body("price").trim().custom((value, {req}) => {
+        return (typeof value === 'number')
+    })
     ],
     validateInput,
     isAuth,
@@ -29,7 +31,7 @@ routes
 routes
   .route("/:pricing_plan_id")
   .get(
-    [param("pricing_plan_id").isUUID()],
+    [param("pricing_plan_id").isNumeric()],
     validateInput,
     (req: Request, res: Response, next: NextFunction) => {
       PricingPlanController.getPricingPlan(req, res, next);
@@ -37,10 +39,12 @@ routes
   )
   .patch(
     [
-      param("pricing_plan_id").isUUID(),
+      param("pricing_plan_id").isNumeric(),
       body("plan_name").trim().notEmpty().isLength({ min: 3 }),
       body("attributes").trim().notEmpty(),
-      body("price").trim().isNumeric(),
+      body("price").trim().custom((value, {req}) => {
+        return (typeof value === 'number')
+    }),
     ],
     validateInput,
     isAuth,
@@ -50,7 +54,7 @@ routes
     }
   )
   .delete(
-    [param("pricing_plan_id").isUUID()],
+    [param("pricing_plan_id").isNumeric()],
     validateInput,
     isAuth,
     allowTo(Roles.Admin),

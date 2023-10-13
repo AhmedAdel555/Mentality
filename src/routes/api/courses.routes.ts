@@ -1,5 +1,6 @@
 import { NextFunction, Router, Request, Response } from "express";
 import CoursesContoller from "../../courses/courses.controller";
+import lessonController from "../../lessons/lesson.controller";
 import { body, param } from "express-validator";
 import isAuth from "../../middlewares/isAuth";
 import allowTo from "../../middlewares/allowTo";
@@ -64,7 +65,7 @@ routes
     (req: Request, res: Response, next: NextFunction) => {
       CoursesContoller.deleteCourse(req, res, next);
     }
-  );
+  )
 
 routes.patch('/:course_id/change-picture',
   uploadCoursesbanners.single("picture"),
@@ -76,4 +77,63 @@ routes.patch('/:course_id/change-picture',
     CoursesContoller.updateCoursePicture(req, res, next);
   }
 )
+
+// lessons routes
+routes
+.route('/:course_id/lessons')
+.get([
+  param("course_id").isUUID()
+],
+validateInput,
+(req: Request, res: Response, next: NextFunction) => {
+  lessonController.getCourseLessons(req, res, next);
+}
+).post(
+  [
+    body("title").trim().notEmpty(),
+    param("course_id").isUUID()
+  ],
+  validateInput,
+  isAuth,
+  allowTo(Roles.Instructor),
+  (req: Request, res: Response, next: NextFunction) => {
+    lessonController.addLesson(req, res, next);
+  }
+)
+
+routes
+.route('/:course_id/lessons/:lesson_id')
+.get([
+  param("course_id").isUUID(),
+  param("lesson_id").isUUID()
+],
+validateInput,
+(req: Request, res: Response, next: NextFunction) => {
+  lessonController.getLesson(req, res, next);
+}
+)
+.patch([
+  param("course_id").isUUID(),
+  param("lesson_id").isUUID(),
+  body("title").trim().notEmpty(),
+  body("lesson_order").custom((value, {req}) => {
+    return (typeof value === 'number')
+  })
+],
+validateInput,
+isAuth,
+allowTo(Roles.Instructor),
+(req: Request, res: Response, next: NextFunction) => {
+  lessonController.updateLesson(req, res, next);
+})
+.delete([
+  param("course_id").isUUID(),
+  param("lesson_id").isUUID(),
+],
+validateInput,
+isAuth,
+allowTo(Roles.Instructor),
+(req: Request, res: Response, next: NextFunction) => {
+  lessonController.deleteLesson(req, res, next);
+})
 export default routes;
