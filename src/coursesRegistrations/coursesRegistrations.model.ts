@@ -7,11 +7,11 @@ class CoursesRegistrationsModel {
     public course: CourseModel
     public course_progress: number
 
-    constructor(student: StudentModel, course: CourseModel, course_progress: number){
+    constructor(student: StudentModel, course: CourseModel){
       this.id = 'un-known';
       this.student = student;
       this.course = course;
-      this.course_progress = course_progress;
+      this.course_progress = 0;
     }
 
 }

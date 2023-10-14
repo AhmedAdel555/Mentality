@@ -58,6 +58,11 @@ routes
     }
   );
 
+routes.get('/courses', isAuth, allowTo(Roles.Student),   
+  (req: Request, res: Response, next: NextFunction) => {
+    studentController.getStudentCourses(req, res, next);
+})
+
 routes.patch(
   "/reset-password",
   [

@@ -67,6 +67,13 @@ routes
     }
   )
 
+routes.get('/:course_id/students',      
+ param("course_id").isUUID(),
+ isAuth, allowTo(Roles.Admin, Roles.Instructor, Roles.Student),   
+  (req: Request, res: Response, next: NextFunction) => {
+    CoursesContoller.getCourseStudents(req, res, next);
+})
+
 routes.patch('/:course_id/change-picture',
   uploadCoursesbanners.single("picture"),
   validateFileUpload,

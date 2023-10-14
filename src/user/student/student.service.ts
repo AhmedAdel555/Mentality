@@ -9,25 +9,71 @@ import config from "../../utils/envConfig";
 import fs from "node:fs";
 import path from "node:path";
 import AppError from "../../utils/appError";
+import ResponseCourseInfoDTO from "../../courses/dtos/response-course-info-dto";
+import CoursesRegistrationsDAO from "../../coursesRegistrations/coursesRegistrations.dao";
 
-class StudentService implements IStudentService{
-  constructor(private readonly studentDAO: StudentDAO){};
+class StudentService implements IStudentService {
+  constructor(
+    private readonly studentDAO: StudentDAO,
+    private readonly courseRegistrationDAO: CoursesRegistrationsDAO
+  ) {}
+
+  public async getStudentCourses(id: string): Promise<ResponseCourseInfoDTO[]> {
+    try {
+      const courseRegistrations =
+        await this.courseRegistrationDAO.getAllCourseRegistrations();
+      const courses = courseRegistrations
+        .filter((courseRegistration, index) => {
+          return courseRegistration.student.id === id;
+        })
+        .map((courseRegistration, index) => {
+          return {
+            id: courseRegistration.course.id,
+            title: courseRegistration.course.title,
+            description: courseRegistration.course.description,
+            requirements: courseRegistration.course.requirements,
+            level: courseRegistration.course.level,
+            picture: courseRegistration.course.picture,
+            instructor: {
+              id: courseRegistration.course.instructor.id,
+              user_name: courseRegistration.course.instructor.user_name,
+              email: courseRegistration.course.instructor.email,
+              title: courseRegistration.course.instructor.title,
+              description: courseRegistration.course.instructor.description,
+              profile_picture:
+                courseRegistration.course.instructor.profile_picture,
+              phone_number: courseRegistration.course.instructor.phone_number,
+              address: courseRegistration.course.instructor.address,
+            },
+          };
+        });
+      return courses;
+    } catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
+    }
+  }
 
   public async getAllStudents(): Promise<ResponeStudentInfoDTO[]> {
-    try{
+    try {
       const studentsFromDB = await this.studentDAO.getAllStudents();
-      const students: ResponeStudentInfoDTO[] = studentsFromDB.map((student, index) => {
-        return {
-          id: student.id, 
-          user_name: student.user_name, 
-          email: student.email,
-          phone_number: student.phone_number,
-          address: student.address,
-          points: student.points,
-          profile_picture: student.profile_picture}
-      })
+      const students: ResponeStudentInfoDTO[] = studentsFromDB.map(
+        (student, index) => {
+          return {
+            id: student.id,
+            user_name: student.user_name,
+            email: student.email,
+            phone_number: student.phone_number,
+            address: student.address,
+            points: student.points,
+            profile_picture: student.profile_picture,
+          };
+        }
+      );
       return students;
-    }catch (err) {
+    } catch (err) {
       throw new AppError(
         (err as AppError).message,
         (err as AppError).statusCode
@@ -35,10 +81,10 @@ class StudentService implements IStudentService{
     }
   }
   public async getStudent(id: string): Promise<ResponeStudentInfoDTO> {
-     try{
+    try {
       const studentFromDB = await this.studentDAO.getStudentById(id);
-     if(!studentFromDB) throw new AppError("student not found", 404);
-     const student: ResponeStudentInfoDTO = {
+      if (!studentFromDB) throw new AppError("student not found", 404);
+      const student: ResponeStudentInfoDTO = {
         id: studentFromDB.id,
         user_name: studentFromDB.user_name,
         email: studentFromDB.email,
@@ -46,26 +92,30 @@ class StudentService implements IStudentService{
         phone_number: studentFromDB.phone_number,
         address: studentFromDB.address,
         points: studentFromDB.points,
-     }
-     return student;
-     }catch (err) {
+      };
+      return student;
+    } catch (err) {
       throw new AppError(
         (err as AppError).message,
         (err as AppError).statusCode
       );
     }
   }
-  public async updateStudent(updateStudentInfoDTO: UpdateStudentInfoDTO): Promise<void> {
-    try{
-      const studentFromDB = await this.studentDAO.getStudentById(updateStudentInfoDTO.user_id);
-      if(!studentFromDB) throw new AppError("student not found", 404);
+  public async updateStudent(
+    updateStudentInfoDTO: UpdateStudentInfoDTO
+  ): Promise<void> {
+    try {
+      const studentFromDB = await this.studentDAO.getStudentById(
+        updateStudentInfoDTO.user_id
+      );
+      if (!studentFromDB) throw new AppError("student not found", 404);
       studentFromDB.email = updateStudentInfoDTO.email;
       studentFromDB.address = updateStudentInfoDTO.address;
-      studentFromDB.phone_number = updateStudentInfoDTO.phone_number
-      studentFromDB.user_name = updateStudentInfoDTO.user_name
+      studentFromDB.phone_number = updateStudentInfoDTO.phone_number;
+      studentFromDB.user_name = updateStudentInfoDTO.user_name;
       const updatedStudent = await this.studentDAO.updateStudent(studentFromDB);
-      if(!updatedStudent) throw new AppError("failed to update", 500);
-    }catch (err) {
+      if (!updatedStudent) throw new AppError("failed to update", 500);
+    } catch (err) {
       throw new AppError(
         (err as AppError).message,
         (err as AppError).statusCode
@@ -76,10 +126,17 @@ class StudentService implements IStudentService{
     resetPasswordRequestDTO: ResetPasswordRequestDTO
   ): Promise<void> {
     try {
-      const student = await this.studentDAO.getStudentById(resetPasswordRequestDTO.user_id);
-      if(!student) throw new AppError("instructor not found", 404);
+      const student = await this.studentDAO.getStudentById(
+        resetPasswordRequestDTO.user_id
+      );
+      if (!student) throw new AppError("instructor not found", 404);
 
-      if (!bcrypt.compareSync(`${resetPasswordRequestDTO.old_password}${config.SECRETHASHINGKEY}`,student.password)) {
+      if (
+        !bcrypt.compareSync(
+          `${resetPasswordRequestDTO.old_password}${config.SECRETHASHINGKEY}`,
+          student.password
+        )
+      ) {
         throw new AppError("password is incorrect", 401);
       }
 
@@ -89,7 +146,7 @@ class StudentService implements IStudentService{
       );
 
       const updatedStudent = await this.studentDAO.updateStudent(student);
-      if(!updatedStudent) throw new AppError('oops error', 500);
+      if (!updatedStudent) throw new AppError("oops error", 500);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -102,10 +159,12 @@ class StudentService implements IStudentService{
   ): Promise<string> {
     try {
       if (!changeProfilePictureRequsetDTO.profile_picture)
-          throw new AppError("Oops!", 401);
+        throw new AppError("Oops!", 401);
 
-        const student = await this.studentDAO.getStudentById(changeProfilePictureRequsetDTO.user_id);
-        if(!student) throw new AppError("instructor not found", 404);
+      const student = await this.studentDAO.getStudentById(
+        changeProfilePictureRequsetDTO.user_id
+      );
+      if (!student) throw new AppError("instructor not found", 404);
 
       if (student.profile_picture !== "/uploads/avatars/defult.jpg") {
         const filePath = path.join(
@@ -118,7 +177,7 @@ class StudentService implements IStudentService{
 
       student.profile_picture = `/uploads/avatars/${changeProfilePictureRequsetDTO.profile_picture}`;
       const updatedStudent = await this.studentDAO.updateStudent(student);
-      if(!updatedStudent) throw new AppError('oops error', 500);
+      if (!updatedStudent) throw new AppError("oops error", 500);
       return updatedStudent.profile_picture;
     } catch (err) {
       throw new AppError(
@@ -143,12 +202,12 @@ class StudentService implements IStudentService{
   }
 
   public async deleteStudent(id: string): Promise<void> {
-    try{
+    try {
       const student = await this.studentDAO.getStudentById(id);
-      if(!student) throw new AppError("instructor not found", 404);
+      if (!student) throw new AppError("instructor not found", 404);
       const deletedStudent = await this.studentDAO.deleteStudentById(id);
-      if(!deletedStudent) throw new AppError("Oops something went wrong", 505);
-    }catch (err) {
+      if (!deletedStudent) throw new AppError("Oops something went wrong", 505);
+    } catch (err) {
       throw new AppError(
         (err as AppError).message,
         (err as AppError).statusCode

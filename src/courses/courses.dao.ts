@@ -68,7 +68,6 @@ class CoursesDAO {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      console.log(course.id);
       const sql = `UPDATE courses
                   SET title = $1, description = $2, requirements = $3, 
                   level = $4 , picture = $5

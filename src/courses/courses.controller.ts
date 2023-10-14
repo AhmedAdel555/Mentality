@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import CoursesService from "./courses.service";
 import CoursesDAO from "./courses.dao";
 import InstructorDAO from "../user/instructor/instructor.dao";
+import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 
 class CoursesContoller {
   constructor(private readonly courseService: CoursesService) {}
@@ -58,5 +59,16 @@ class CoursesContoller {
       next(error);
     }
   }
+
+  public async getCourseStudents(req: Request, res: Response, next: NextFunction){
+     try{
+      const students = await this.courseService.getCourseUsers(req.params.course_id)
+     res.status(200).json({status: "success", data: students});
+     }catch (error) {
+      next(error);
+    }
+  }
 }
-export default new CoursesContoller(new CoursesService(new CoursesDAO(), new InstructorDAO()));
+export default new CoursesContoller(new CoursesService(new CoursesDAO(), 
+                                    new InstructorDAO(), 
+                                    new CoursesRegistrationsDAO()));

@@ -1,6 +1,7 @@
 import { Request, Response,  NextFunction } from "express";
 import StudentService from "./student.service";
 import StudentDAO from "./student.dao";
+import CoursesRegistrationsDAO from "../../coursesRegistrations/coursesRegistrations.dao";
 
 class StudentController{
   constructor(private readonly studentService: StudentService){};
@@ -65,5 +66,14 @@ class StudentController{
       next(error)
     }
   }
+
+  public async getStudentCourses(req: Request, res: Response, next: NextFunction){
+    try{
+      const courses = await this.studentService.getStudentCourses(req.body.user_id);
+      res.status(200).json({status: "success", data: courses});
+    }catch (error) {
+      next(error);
+    }
+  }
 }
-export default new StudentController(new StudentService(new StudentDAO));
+export default new StudentController(new StudentService(new StudentDAO, new CoursesRegistrationsDAO()));

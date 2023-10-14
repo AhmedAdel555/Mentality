@@ -1,4 +1,6 @@
+import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 import InstructorDAO from "../user/instructor/instructor.dao";
+import ResponeStudentInfoDTO from "../user/student/dtos/respone-student-info-dto";
 import AppError from "../utils/appError";
 import CourseModel from "./course.model";
 import CoursesDAO from "./courses.dao";
@@ -12,7 +14,35 @@ import fs from "node:fs";
 import path from "path";
 
 class CoursesService implements ICoursesServices {
-  constructor(private readonly coursesDAO: CoursesDAO, private readonly instructorDAO: InstructorDAO) {}
+  constructor(private readonly coursesDAO: CoursesDAO, 
+              private readonly instructorDAO: InstructorDAO,
+              private readonly courseRegistrationDAO: CoursesRegistrationsDAO) {}
+  
+  public async getCourseUsers(id: string): Promise<ResponeStudentInfoDTO[]> {
+    try{
+      const courseRegistrations = await this.courseRegistrationDAO.getAllCourseRegistrations();
+      const users = courseRegistrations.filter((courseRegistration, index) => {
+          return courseRegistration.course.id === id
+      }).map((courseRegistration, index) => {
+        return {
+          id: courseRegistration.student.id,
+          user_name: courseRegistration.student.user_name,
+          email: courseRegistration.student.email,
+          profile_picture: courseRegistration.student.profile_picture,
+          phone_number: courseRegistration.student.phone_number,
+          address: courseRegistration.student.address,
+          points: courseRegistration.student.points,
+        }
+      })
+
+      return users;
+    }catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
+    }
+  }
 
   public async addCourse(addCourseRequest: AddCourseRequestDTO): Promise<void> {
     try {
