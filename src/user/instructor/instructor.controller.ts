@@ -44,7 +44,7 @@ class InstructorController{
 
   public async deleteInstructor(req: Request, res:Response, next: NextFunction){
     try{
-      await this.instructorService.deleteInstructor(req.params.id);
+      await this.instructorService.deleteInstructor(req.params.instructor_id);
       res.status(200).json({status: "success", data: null});
     }catch(error){
       next(error);

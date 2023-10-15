@@ -7,7 +7,7 @@ import allowTo from "../../middlewares/allowTo";
 import Roles from "../../utils/roles.enum";
 const routes = Router();
 
-routes.post('/course-registration/:course_id', [
+routes.post('/:course_id', [
   param("course_id").isUUID()
 ],
 validateInput,

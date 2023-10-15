@@ -7,6 +7,7 @@ import config from "./utils/envConfig";
 import AppError from "./utils/appError";
 import routes from "./routes";
 import path from "path";
+import fs from "node:fs";
 // create my server
 const app: Application = express();
 /*
@@ -39,7 +40,16 @@ app.all('*',(_req: Request,  res:Response) => {
   res.status(404).json({ status: "error", message: "Sorry this api not found 😂"});
 });
 // handling error
-app.use((error:AppError, _req: Request,  res:Response, _next: NextFunction) => {
+app.use((error:AppError, req: Request,  res:Response, _next: NextFunction) => {
+  if (req.file) {
+    let filePath = req.file.path;
+    console.log(filePath);
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(`Error deleting file: ${err}`);
+      }
+    });
+  }
   res.status(error.statusCode || 500).json({ status: "error" , messgae: "Error in server " + error.message});
 })
 

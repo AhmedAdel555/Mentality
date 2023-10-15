@@ -90,13 +90,12 @@ class InstructorService implements IInstructorService {
 
   public async updateInstructor(updateInstructorRequestDTO: UpdateInstructorRequestDTO): Promise<void> {
     try{
-      const instructor = await this.instructorDAO.getInstructorById(updateInstructorRequestDTO.id);
+      const instructor = await this.instructorDAO.getInstructorById(updateInstructorRequestDTO.user_id);
       if(!instructor) throw new AppError("instructor not found", 404);
 
       instructor.user_name = updateInstructorRequestDTO.user_name ;
       instructor.title = updateInstructorRequestDTO.title ;
       instructor.description = updateInstructorRequestDTO.description ;
-      instructor.email = updateInstructorRequestDTO.email ;
       instructor.phone_number = updateInstructorRequestDTO.phone_number;
       instructor.address = updateInstructorRequestDTO.address;
 

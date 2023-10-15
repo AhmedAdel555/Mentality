@@ -18,11 +18,11 @@ routes
         .isEmail()
         .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
         .withMessage("please enter an valide email"),
-      body("user_name").trim().isLength({ min: 5 }),
+      body("user_name").trim().isLength({ min: 3 }),
       body("password")
         .trim()
         .matches(
-          "^(?=.*d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-#$.%&*@])(?=.*[a-zA-Z]).{8,16}$"
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,16}$/
         )
         .withMessage(
           `password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character`
@@ -47,14 +47,13 @@ routes
   )
   .patch(
     [
-      body("email").trim().isEmail(),
-      body("user_name").trim().isLength({ min: 5 }),
+      body("user_name").trim().isLength({ min: 3 }),
       body("phone_number").custom((value, { req }) => {
         return value === null || typeof value === "string";
       }),
       body("address").custom((value, { req }) => {
         return value === null || typeof value === "string";
-      }),
+      })
     ],
     validateInput,
     isAuth,
@@ -79,17 +78,18 @@ routes
 routes.patch(
   "/reset-password",
   [
+    body("old_password").trim().notEmpty(),
     body("password")
       .trim()
       .matches(
-        "^(?=.*d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-#$.%&*@])(?=.*[a-zA-Z]).{8,16}$"
-      )
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,16}$/
+        )
       .withMessage(
         `password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character`
       ),
     body("confirm_password").custom((value, { req }) => {
       return value === req.body.password;
-    }),
+    })
   ],
   validateInput,
   isAuth,

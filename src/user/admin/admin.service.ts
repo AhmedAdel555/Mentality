@@ -30,8 +30,7 @@ class AdminService implements IAdminService {
         ),
         "/uploads/avatars/defult.jpg"
       );
-      const newAdmin = this.adminDao.createAdmin(admin);
-      console.log(newAdmin);
+      await this.adminDao.createAdmin(admin);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -94,7 +93,6 @@ class AdminService implements IAdminService {
       );
       if (!admin) throw new AppError("admin does not exist", 404);
       admin.user_name = updateAdminRequestDTO.user_name;
-      admin.email = updateAdminRequestDTO.email;
       admin.address = updateAdminRequestDTO.address;
       admin.phone_number = updateAdminRequestDTO.phone_number;
       const updatedAdmin = await this.adminDao.updateAdmin(admin);

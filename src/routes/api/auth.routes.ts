@@ -16,8 +16,8 @@ routes.post(
     body("password")
       .trim()
       .matches(
-        "^(?=.*d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-#$.%&*@])(?=.*[a-zA-Z]).{8,16}$"
-      )
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,16}$/
+        )
       .withMessage(
         `password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character`
       ),
@@ -41,8 +41,8 @@ routes.post(
     body("password")
       .trim()
       .matches(
-        "^(?=.*d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-#$.%&*@])(?=.*[a-zA-Z]).{8,16}$"
-      )
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,16}$/
+        )
       .withMessage(
         `password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character`
       ),

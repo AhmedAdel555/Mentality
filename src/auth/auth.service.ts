@@ -95,8 +95,7 @@ class AuthService {
       const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(1);
       if (!pricingPlan) throw new AppError("oops there is a problem", 404);
       const subscription = new SubscriptionModel(newStudent, pricingPlan);
-      const newSubscription =this.subscriptionDAO.createSubscription(subscription);
-      console.log(newSubscription);
+      await this.subscriptionDAO.createSubscription(subscription);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
