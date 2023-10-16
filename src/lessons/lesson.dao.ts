@@ -32,7 +32,7 @@ class LessonDAO {
     try {
       connection = await db.connect();
       const sql = `SELECT id, title, lesson_order, 
-                  (SELECT ROW_TO_JSON(courses) FROM courses WHERE courses.id = lessons.course_id) AS course; 
+                  (SELECT ROW_TO_JSON(courses) FROM courses WHERE courses.id = lessons.course_id) AS course
                   FROM lessons;`;
       const lessons = await connection.query(sql);
       connection.release();
@@ -49,8 +49,8 @@ class LessonDAO {
     try {
       connection = await db.connect();
       const sql = `SELECT id, title, lesson_order, 
-                  (SELECT ROW_TO_JSON(courses) FROM courses WHERE courses.id = lessons.course_id) AS course; 
-                  FROM lessons;
+                  (SELECT ROW_TO_JSON(courses) FROM courses WHERE courses.id = lessons.course_id) AS course
+                  FROM lessons
                   where id = $1;`;
       const lesson = await connection.query(sql, [id]);
       connection.release();
