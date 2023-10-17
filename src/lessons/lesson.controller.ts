@@ -44,7 +44,7 @@ class LessonController{
 
   public async deleteLesson(req: Request, res: Response, next: NextFunction){
     try{
-      await this.lessonService.deleteLesson(req.params.lesson_id);
+      await this.lessonService.deleteLesson({...req.body,id:req.params.lesson_id, course_id: req.params.course_id});
       res.status(200).json({status: "success", data: null});
     }catch(error){
       next(error)

@@ -1,6 +1,7 @@
 import CoursesDAO from "../courses/courses.dao";
 import AppError from "../utils/appError";
 import AddLessonRequestDTO from "./dtos/add-lesson-request-dto";
+import DeleteLessonRequestDTO from "./dtos/delete-lesson-request-dto";
 import LessonResponsDTO from "./dtos/lesson-respons-dto";
 import UpdateLessonRequestDTO from "./dtos/update-lesson-request-dto";
 import LessonDAO from "./lesson.dao";
@@ -73,13 +74,11 @@ class LessonService implements ILessonService {
   
   public async updateLesson(updateLessonRequestDTO: UpdateLessonRequestDTO): Promise<void> {
       try{
-        const course = await this.courseDAO.getCourseById(updateLessonRequestDTO.course_id);
-        if(!course) throw new AppError("course not found", 404);
-        if(course.instructor.id !== updateLessonRequestDTO.user_id){
-          throw new AppError("you can't update this course", 403);
-        }
         const lesson = await this.lessonDAO.getlessonById(updateLessonRequestDTO.id);
         if(!lesson) throw new AppError("lesson not found", 404);
+        if(lesson.course.instructor.id  !== updateLessonRequestDTO.user_id){
+          throw new AppError("you can't update this course", 403);
+        }
         lesson.title = updateLessonRequestDTO.title
         lesson.lesson_order = updateLessonRequestDTO.lesson_order
         const updatedLesson = await this.lessonDAO.updateLesson(lesson);
@@ -92,11 +91,14 @@ class LessonService implements ILessonService {
       }
   }
 
-  public async deleteLesson(id: string): Promise<void> {
+  public async deleteLesson(deleteLessonRequestDTO:DeleteLessonRequestDTO): Promise<void> {
     try{
-      const lesson = await this.lessonDAO.getlessonById(id);
+      const lesson = await this.lessonDAO.getlessonById(deleteLessonRequestDTO.id);
       if(!lesson) throw new AppError("lesson not found", 404);
-      const deletedLesson = this.lessonDAO.deleteLessonById(id);
+      if(lesson.course.instructor.id !== deleteLessonRequestDTO.user_id){
+        throw new AppError('you do not have permmision to do this', 403);
+      }
+      const deletedLesson = this.lessonDAO.deleteLessonById(deleteLessonRequestDTO.id);
       if(!deletedLesson) throw new AppError(`Oops faild to delete lesson`, 500);
     }catch (err) {
       throw new AppError(

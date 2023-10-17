@@ -1,5 +1,6 @@
 import LessonModel from "../lessons/lesson.model"
 import PricingPlanModel from "../pricingPlan/pricingPlan.model"
+import Topics from "./topics.enum";
 
 class TopicModel {
   public id: string;
@@ -10,9 +11,9 @@ class TopicModel {
   public lesson: LessonModel;
   public pricing_plan: PricingPlanModel;
   public content_url: string | null;
-  public topic_type: string;
+  public topic_type: Topics;
   
-  constructor(title: string, description: string, topic_order: number, points: number ,lesson: LessonModel, pricing_plan: PricingPlanModel,  content_url: string | null, topic_type:string ){
+  constructor(title: string, description: string, topic_order: number, points: number ,lesson: LessonModel, pricing_plan: PricingPlanModel,  content_url: string | null, topic_type:Topics ){
     this.id = 'un-known';
     this.title = title;
     this.description = description;

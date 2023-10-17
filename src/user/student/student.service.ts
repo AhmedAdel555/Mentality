@@ -11,12 +11,45 @@ import path from "node:path";
 import AppError from "../../utils/appError";
 import ResponseCourseInfoDTO from "../../courses/dtos/response-course-info-dto";
 import CoursesRegistrationsDAO from "../../coursesRegistrations/coursesRegistrations.dao";
+import SubcriptionResponsDTO from "../../subscription/dtos/subcription-respons-dto";
+import SubscriptionDAO from "../../subscription/subscription.dao";
 
 class StudentService implements IStudentService {
   constructor(
     private readonly studentDAO: StudentDAO,
-    private readonly courseRegistrationDAO: CoursesRegistrationsDAO
+    private readonly courseRegistrationDAO: CoursesRegistrationsDAO,
+    private readonly subscriptionDAO: SubscriptionDAO
   ) {}
+
+  public async getStudentSubscriptions(id: string): Promise<SubcriptionResponsDTO[]> {
+      try{
+        const subscriptionsFromDB = await this.subscriptionDAO.getAllSubscriptions();
+        const subcriptions:SubcriptionResponsDTO[]  = subscriptionsFromDB.filter((subcription, index) => {
+          return subcription.student.id === id;
+        }).map((subscription, index) => {
+           return {
+              id: subscription.id,
+              student: {
+                id: subscription.student.id,
+                user_name: subscription.student.user_name,
+                email: subscription.student.email,
+                profile_picture: subscription.student.profile_picture,
+                phone_number: subscription.student.phone_number,
+                address: subscription.student.address,
+                points: subscription.student.points,
+             },
+             pricing_plan: subscription.pricing_plan,
+             date: subscription.date
+           }
+       })
+       return subcriptions;
+      }catch (err) {
+        throw new AppError(
+          (err as AppError).message,
+          (err as AppError).statusCode
+        );
+      }
+  }
 
   public async getStudentCourses(id: string): Promise<ResponseCourseInfoDTO[]> {
     try {

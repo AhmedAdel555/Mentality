@@ -1,4 +1,5 @@
 import Roles from "../../utils/roles.enum";
+import Topics from "../topics.enum";
 
 interface AddTopicRequestDTO {
   user_id:string
@@ -10,6 +11,6 @@ interface AddTopicRequestDTO {
   lesson_id: string
   pricing_plan_id: number
   content_url: string | null
-  topic_type: string
+  topic_type: Topics
 }
 export default AddTopicRequestDTO;
