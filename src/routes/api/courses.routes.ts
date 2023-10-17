@@ -143,4 +143,20 @@ allowTo(Roles.Instructor),
 (req: Request, res: Response, next: NextFunction) => {
   lessonController.deleteLesson(req, res, next);
 })
+
+// topics routes
+routes
+.route('/:course_id/lessons/:lesson_id/topics')
+.post(
+
+)
+.get(
+
+)
+
+routes
+.route('/:course_id/lessons/:lesson_id/topics/:topic_id')
+.get()
+.patch()
+.delete()
 export default routes;
