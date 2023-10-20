@@ -17,10 +17,9 @@ class PricingPlanService implements IPricingPlanServicesInterface {
         +(requestAddPricingPlanDTO.price.toFixed(2)),
         requestAddPricingPlanDTO.attributes
       );
-      const pricingPlan = await this.pricingPlanDAO.createPricingPlan(
+      await this.pricingPlanDAO.createPricingPlan(
         newPricgingPlan
       );
-      if (!pricingPlan) throw new AppError("oops error failed to create pricing plan", 500);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -38,8 +37,7 @@ class PricingPlanService implements IPricingPlanServicesInterface {
       pricingPlanFromDB.plan_name = requestUpdatePricingPlanDTO.plan_name;
       pricingPlanFromDB.price = +(requestUpdatePricingPlanDTO.price.toFixed(2));
       pricingPlanFromDB.attributes = requestUpdatePricingPlanDTO.attributes;
-      const updatedPricinPlan = await this.pricingPlanDAO.updatePricingPlan(pricingPlanFromDB);
-      if (!updatedPricinPlan) throw new AppError("oops! ", 500);
+      await this.pricingPlanDAO.updatePricingPlan(pricingPlanFromDB);
     }catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -76,8 +74,7 @@ class PricingPlanService implements IPricingPlanServicesInterface {
     try {
       const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(id);
       if (!pricingPlan) throw new AppError("oops no pricing plan found", 500);
-      const deletedPricingPlan = await this.pricingPlanDAO.deletePricingPlanById(id);
-      if (!deletedPricingPlan) throw new AppError("oops error in deleting", 500);
+      await this.pricingPlanDAO.deletePricingPlanById(id);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,

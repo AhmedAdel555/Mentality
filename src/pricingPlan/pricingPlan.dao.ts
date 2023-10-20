@@ -5,20 +5,18 @@ import AppError from "../utils/appError";
 
 class PricingPlanDAO {
 
-  public async createPricingPlan(pricingPlan: PricingPlanModel): Promise<PricingPlanModel> {
+  public async createPricingPlan(pricingPlan: PricingPlanModel): Promise<void> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `INSERT INTO pricing_plans (plan_name, price, attributes)
-        VALUES ($1, $2, $3)
-        RETURNING *;`;
-      const newPricingPlan = await connection.query(sql, [
+        VALUES ($1, $2, $3);`;
+      await connection.query(sql, [
         pricingPlan.plan_name,
         pricingPlan.price,
         pricingPlan.attributes,
       ]);
       connection.release();
-      return newPricingPlan.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
@@ -54,36 +52,33 @@ class PricingPlanDAO {
     }
   }
 
-  public async updatePricingPlan(pricingPlan: PricingPlanModel): Promise<PricingPlanModel | undefined> {
+  public async updatePricingPlan(pricingPlan: PricingPlanModel): Promise<void> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `UPDATE pricing_plans
         SET plan_name = $1, price = $2, attributes = $3
-        WHERE id = $4
-        RETURNING *;`;
-      const updatedPricingPlan = await connection.query(sql, [
+        WHERE id = $4;`;
+      await connection.query(sql, [
         pricingPlan.plan_name,
         pricingPlan.price,
         pricingPlan.attributes,
         pricingPlan.id,
       ]);
       connection.release();
-      return updatedPricingPlan.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
 
-  public async deletePricingPlanById(id: number): Promise<PricingPlanModel | undefined> {
+  public async deletePricingPlanById(id: number): Promise<void> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `DELETE FROM pricing_plans WHERE id = $1 RETURNING *;`;
-      const deletedPricingPlan = await connection.query(sql, [id]);
+      await connection.query(sql, [id]);
       connection.release();
-      return deletedPricingPlan.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);

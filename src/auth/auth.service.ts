@@ -91,10 +91,10 @@ class AuthService {
         ),
         "/uploads/avatars/defult.jpg"
       );
-      const newStudent = await this.studentDAO.createStudent(student);
+      await this.studentDAO.createStudent(student);
       const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(1);
       if (!pricingPlan) throw new AppError("oops there is a problem", 404);
-      const subscription = new SubscriptionModel(newStudent, pricingPlan);
+      const subscription = new SubscriptionModel(student, pricingPlan);
       await this.subscriptionDAO.createSubscription(subscription);
     } catch (err) {
       throw new AppError(

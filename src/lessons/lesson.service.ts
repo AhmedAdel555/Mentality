@@ -22,8 +22,7 @@ class LessonService implements ILessonService {
           return lesson.course.id === addLessonRequestDTO.course_id;
       })
       const lesson = new LessonModel(addLessonRequestDTO.title, courseLessons.length + 1, course);
-      const newLesson = await this.lessonDAO.createLesson(lesson);
-      if(!newLesson) throw new AppError("Opps something wrong", 500);
+      await this.lessonDAO.createLesson(lesson);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -81,8 +80,7 @@ class LessonService implements ILessonService {
         }
         lesson.title = updateLessonRequestDTO.title
         lesson.lesson_order = updateLessonRequestDTO.lesson_order
-        const updatedLesson = await this.lessonDAO.updateLesson(lesson);
-        if(!updatedLesson) throw new AppError(`Oops faild to update lesson`, 500);
+        await this.lessonDAO.updateLesson(lesson);
       }catch (err) {
         throw new AppError(
           (err as AppError).message,
@@ -98,8 +96,7 @@ class LessonService implements ILessonService {
       if(lesson.course.instructor.id !== deleteLessonRequestDTO.user_id){
         throw new AppError('you do not have permmision to do this', 403);
       }
-      const deletedLesson = this.lessonDAO.deleteLessonById(deleteLessonRequestDTO.id);
-      if(!deletedLesson) throw new AppError(`Oops faild to delete lesson`, 500);
+      await this.lessonDAO.deleteLessonById(deleteLessonRequestDTO.id);
     }catch (err) {
       throw new AppError(
         (err as AppError).message,

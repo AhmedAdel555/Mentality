@@ -21,8 +21,8 @@ class SubscriptionServices implements ISubscriptionServices{
      const pricingPlan = await this.planPricingDAO.getPricingPlanById(createSubscriptionRequestDTO.pricing_plan_id);
      if(!pricingPlan) throw new AppError("pricing plan not found", 404);
      const subscription = new SubscriptionModel(student, pricingPlan);
-     const newSubscription = this.subscriptionDAO.createSubscription(subscription);
-     if(!newSubscription) throw new AppError("failed to make subscription", 500);
+     await this.subscriptionDAO.createSubscription(subscription);
+     
      }catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -89,8 +89,7 @@ class SubscriptionServices implements ISubscriptionServices{
     try{
       const subscription = await this.subscriptionDAO.getSubscriptionById(id);
       if(!subscription) throw new AppError("failed to find subcription", 404);
-      const deletedSubscription = await this.subscriptionDAO.getSubscriptionById(id);
-      if(!deletedSubscription) throw new AppError("failed to delete subscription", 505);
+      await this.subscriptionDAO.deleteSubscriptionById(id);
     }catch (err) {
       throw new AppError(
         (err as AppError).message,

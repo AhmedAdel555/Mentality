@@ -56,8 +56,7 @@ class TopicServices implements ITopicServices {
         addTopicRequestDTO.content_url,
         addTopicRequestDTO.topic_type
       );
-      const newTopic = await this.topicDAO.createTopic(topic);
-      if (!newTopic) throw new AppError("oops might be something wrong", 500);
+      await this.topicDAO.createTopic(topic);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -167,8 +166,7 @@ class TopicServices implements ITopicServices {
       topic.pricing_plan.id = updateTopicRequestDTO.pricing_plan_id;
       topic.topic_order = updateTopicRequestDTO.topic_order;
       topic.topic_type = updateTopicRequestDTO.topic_type;
-      const updatedTopic = await this.topicDAO.updateTopic(topic);
-      if (!updatedTopic) throw new AppError("oops some thing wrong", 500);
+      await this.topicDAO.updateTopic(topic);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -184,8 +182,7 @@ class TopicServices implements ITopicServices {
       if (!topic) throw new AppError("topic not found", 404);
       if (deleteTopicRequestDTO.user_id !== topic.lesson.course.instructor.id)
         throw new AppError("you do not have permision", 403);
-      const deletedTopic = await this.topicDAO.deleteTopicById(deleteTopicRequestDTO.topic_id);
-      if (!deletedTopic) throw new AppError("oops some thing wrong", 500);
+      await this.topicDAO.deleteTopicById(deleteTopicRequestDTO.topic_id);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,

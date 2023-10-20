@@ -2,6 +2,7 @@ import { Request, Response,  NextFunction } from "express";
 import StudentService from "./student.service";
 import StudentDAO from "./student.dao";
 import CoursesRegistrationsDAO from "../../coursesRegistrations/coursesRegistrations.dao";
+import SubscriptionDAO from "../../subscription/subscription.dao";
 
 class StudentController{
   constructor(private readonly studentService: StudentService){};
@@ -76,4 +77,4 @@ class StudentController{
     }
   }
 }
-export default new StudentController(new StudentService(new StudentDAO, new CoursesRegistrationsDAO()));
+export default new StudentController(new StudentService(new StudentDAO, new CoursesRegistrationsDAO(), new SubscriptionDAO()));

@@ -4,14 +4,13 @@ import StudentModel from "./student.model";
 import AppError from "../../utils/appError";
 class StudentDAO {
 
-  public async createStudent(student: StudentModel): Promise<StudentModel> {
+  public async createStudent(student: StudentModel): Promise<void> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `INSERT INTO students (email, user_name, password, profile_picture, points)
-        VALUES ($1, $2, $3, $4, $5)
-        returning *;`;
-      const newStudent = await connection.query(sql, [
+        VALUES ($1, $2, $3, $4, $5);`;
+      await connection.query(sql, [
         student.email,
         student.user_name,
         student.password,
@@ -19,7 +18,6 @@ class StudentDAO {
         student.points
       ]);
       connection.release();
-      return newStudent.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
@@ -66,7 +64,7 @@ class StudentDAO {
       throw new AppError((err as Error).message, 500);    }
   }
 
-  public async updateStudent(student: StudentModel): Promise<StudentModel | undefined>{
+  public async updateStudent(student: StudentModel): Promise<void>{
     let connection: PoolClient | null = null;
       try {
         connection = await db.connect();
@@ -74,27 +72,24 @@ class StudentDAO {
         SET email = $1, user_name = $2, phone_number = $3, 
         address = $4, password = $5, profile_picture = $6,
         reset_password_token = $7, points = $8
-        WHERE id = $9
-        returning *;`;
-        const updatedStudent = await connection.query(sql, 
+        WHERE id = $9;`;
+        await connection.query(sql, 
           [student.email, student.user_name, student.phone_number, student.address, student.password,
            student.profile_picture, student.reset_password_token, student.points, student.id]);
         connection.release();
-        return updatedStudent.rows[0];
       } catch (err) {
         if (connection) connection.release();
         throw new AppError((err as Error).message, 500);
             }
   }
 
-  public async deleteStudentById(id:string): Promise<StudentModel | undefined>{
+  public async deleteStudentById(id:string): Promise<void>{
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `DELETE FROM students WHERE id = $1 returning *;`;
-      const deletedStudent = await connection.query(sql, [id]);
+      const sql = `DELETE FROM students WHERE id = $1 ;`;
+      await connection.query(sql, [id]);
       connection.release();
-      return deletedStudent.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);

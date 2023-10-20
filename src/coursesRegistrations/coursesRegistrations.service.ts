@@ -18,8 +18,7 @@ class CourseRegistrationService implements ICoursesRegistrationsServiceInterface
       const student = await this.studentDAO.getStudentById(addCourseRegistrationDTO.user_id);
       if(!student) throw new AppError("student not found", 404);
       const courseRegistration = new CoursesRegistrationsModel(student, course);
-      const newCourseRegistration = await this.courseRegistrationDAO.createCourseResgistration(courseRegistration);
-      if(!newCourseRegistration) throw new AppError("Oops error", 500);
+      await this.courseRegistrationDAO.createCourseResgistration(courseRegistration);
     }catch (err) {
       throw new AppError(
         (err as AppError).message,

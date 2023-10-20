@@ -3,21 +3,19 @@ import { PoolClient } from "pg";
 import AdminModel from "./admin.model";
 import AppError from "../../utils/appError";
 class AdminDAO {
-  public async createAdmin(admin: AdminModel): Promise<AdminModel> {
+  public async createAdmin(admin: AdminModel): Promise<void> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `INSERT INTO admins (email, user_name, password, profile_picture)
-        VALUES ($1, $2, $3, $4)
-        returning *;`;
-      const newAdmin = await connection.query(sql, [
+        VALUES ($1, $2, $3, $4);`;
+      await connection.query(sql, [
         admin.email,
         admin.user_name,
         admin.password,
         admin.profile_picture,
       ]);
       connection.release();
-      return newAdmin.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
@@ -66,16 +64,15 @@ class AdminDAO {
     }
   }
 
-  public async updateAdmin(admin: AdminModel): Promise<AdminModel | undefined> {
+  public async updateAdmin(admin: AdminModel): Promise<void> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `UPDATE admins
         SET email = $1, user_name = $2, phone_number = $3, address = $4,
         password = $5, profile_picture = $6, reset_password_token = $7
-        WHERE id = $8
-        returning *;`;
-      const updatedAdmin = await connection.query(sql, [
+        WHERE id = $8;`;
+      await connection.query(sql, [
         admin.email,
         admin.user_name,
         admin.phone_number,
@@ -86,7 +83,6 @@ class AdminDAO {
         admin.id,
       ]);
       connection.release();
-      return updatedAdmin.rows[0];
     } catch (err) {
       if (connection) connection.release();
       throw new Error((err as Error).message);

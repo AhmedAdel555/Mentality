@@ -57,8 +57,7 @@ class CoursesService implements ICoursesServices {
         `/uploads/banners/${addCourseRequest.picture}`,
         instructor
       );
-      const newCourse = await this.coursesDAO.createCourse(course);
-      if (!newCourse) throw new AppError("Oops problem when create course", 500);
+      await this.coursesDAO.createCourse(course);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -70,6 +69,7 @@ class CoursesService implements ICoursesServices {
   public async getAllCourses(): Promise<ResponseCourseInfoDTO[]> {
     try {
       const coursesFromDB = await this.coursesDAO.getAllCourses();
+      console.log(coursesFromDB);
       const courses: ResponseCourseInfoDTO[] = coursesFromDB.map((course, index) => {
         return {
           id: course.id, 
@@ -143,8 +143,7 @@ class CoursesService implements ICoursesServices {
       course.description = updateCourseRequest.description;
       course.requirements = updateCourseRequest.requirements;
       course.level = updateCourseRequest.level;
-      const updatedCourse = await this.coursesDAO.updateCourse(course);
-      if (!updatedCourse) throw new AppError(`Oops faild to update course`, 500);
+      await this.coursesDAO.updateCourse(course);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -169,9 +168,8 @@ class CoursesService implements ICoursesServices {
       this.deleteFile(path.join(filePath));
 
       course.picture = `/uploads/banners/${updateCoursePictureRequest.picture}`;
-      const updatedCourse = await this.coursesDAO.updateCourse(course);
-      if (!updatedCourse) throw new AppError(`Oops faild to update course`, 500);
-      return updatedCourse.picture
+      await this.coursesDAO.updateCourse(course);
+      return course.picture
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -187,8 +185,7 @@ class CoursesService implements ICoursesServices {
       if (deleteCourseRequestDTO.user_id !== course.instructor.id) {
         throw new AppError("you can't delete this course", 403);
       }
-      const deletedCourse = await this.coursesDAO.deleteCourseById(deleteCourseRequestDTO.id);
-      if (!deletedCourse) throw new AppError(`Oops faild to update course`, 500);
+      await this.coursesDAO.deleteCourseById(deleteCourseRequestDTO.id);
       const filePath = path.join(
         __dirname,
         "../..",

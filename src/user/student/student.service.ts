@@ -146,8 +146,7 @@ class StudentService implements IStudentService {
       studentFromDB.address = updateStudentInfoDTO.address;
       studentFromDB.phone_number = updateStudentInfoDTO.phone_number;
       studentFromDB.user_name = updateStudentInfoDTO.user_name;
-      const updatedStudent = await this.studentDAO.updateStudent(studentFromDB);
-      if (!updatedStudent) throw new AppError("failed to update", 500);
+      await this.studentDAO.updateStudent(studentFromDB);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -178,8 +177,7 @@ class StudentService implements IStudentService {
         10
       );
 
-      const updatedStudent = await this.studentDAO.updateStudent(student);
-      if (!updatedStudent) throw new AppError("oops error", 500);
+      await this.studentDAO.updateStudent(student);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -209,9 +207,8 @@ class StudentService implements IStudentService {
       }
 
       student.profile_picture = `/uploads/avatars/${changeProfilePictureRequsetDTO.profile_picture}`;
-      const updatedStudent = await this.studentDAO.updateStudent(student);
-      if (!updatedStudent) throw new AppError("oops error", 500);
-      return updatedStudent.profile_picture;
+      await this.studentDAO.updateStudent(student);
+      return  student.profile_picture;
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -238,8 +235,7 @@ class StudentService implements IStudentService {
     try {
       const student = await this.studentDAO.getStudentById(id);
       if (!student) throw new AppError("instructor not found", 404);
-      const deletedStudent = await this.studentDAO.deleteStudentById(id);
-      if (!deletedStudent) throw new AppError("Oops something went wrong", 505);
+      await this.studentDAO.deleteStudentById(id);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,

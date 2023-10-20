@@ -8,6 +8,7 @@ import AppError from "./utils/appError";
 import routes from "./routes";
 import path from "path";
 import fs from "node:fs";
+
 // create my server
 const app: Application = express();
 /*

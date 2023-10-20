@@ -31,8 +31,7 @@ class InstructorService implements IInstructorService {
         bcrypt.hashSync(`${addInstructorRequestDTO.password}${config.SECRETHASHINGKEY}`,10),
         "/uploads/avatars/defult.jpg"
       );
-    const newInstructor = await this.instructorDAO.createInstructor(instructor);
-    if(!newInstructor) throw new AppError("Oops can't create instructor", 500);
+    await this.instructorDAO.createInstructor(instructor);
     }catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -99,8 +98,7 @@ class InstructorService implements IInstructorService {
       instructor.phone_number = updateInstructorRequestDTO.phone_number;
       instructor.address = updateInstructorRequestDTO.address;
 
-      const updatedInstructor = await this.instructorDAO.updateInstructor(instructor);
-      if(!updatedInstructor) throw new AppError('oops error', 500);
+      await this.instructorDAO.updateInstructor(instructor);
     }catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -113,8 +111,7 @@ class InstructorService implements IInstructorService {
       try{
         const instructor = await this.instructorDAO.getInstructorById(id);
         if(!instructor) throw new AppError("instructor not found", 404);
-        const deletedInstructor = await this.instructorDAO.deleteInstructorById(id);
-        if(!deletedInstructor) throw new AppError('oops error', 500);
+        await this.instructorDAO.deleteInstructorById(id);
       }catch (err) {
         throw new AppError(
           (err as AppError).message,
@@ -137,9 +134,7 @@ class InstructorService implements IInstructorService {
         10
       );
 
-      const updatedInstructor = await this.instructorDAO.updateInstructor(instructor);
-      if(!updatedInstructor) throw new AppError('oops error', 500);
-
+      await this.instructorDAO.updateInstructor(instructor);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -167,9 +162,8 @@ class InstructorService implements IInstructorService {
       // update admin
 
       instructor.profile_picture = `/uploads/avatars/${changeProfilePictureRequsetDTO.profile_picture}`;
-      const updatedInstructor = await this.instructorDAO.updateInstructor(instructor);
-      if(!updatedInstructor) throw new AppError('oops error', 500);
-      return updatedInstructor.profile_picture;
+      await this.instructorDAO.updateInstructor(instructor);
+      return instructor.profile_picture;
     } catch (err) {
       throw new AppError(
         (err as AppError).message,

@@ -95,8 +95,7 @@ class AdminService implements IAdminService {
       admin.user_name = updateAdminRequestDTO.user_name;
       admin.address = updateAdminRequestDTO.address;
       admin.phone_number = updateAdminRequestDTO.phone_number;
-      const updatedAdmin = await this.adminDao.updateAdmin(admin);
-      if (!updatedAdmin) throw new AppError("Oops! failed ", 500);
+      await this.adminDao.updateAdmin(admin);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -129,8 +128,7 @@ class AdminService implements IAdminService {
         10
       );
       // update admin
-      const updatedAdmin = await this.adminDao.updateAdmin(admin);
-      if (!updatedAdmin) throw new AppError("Oops! failed ", 500);
+      await this.adminDao.updateAdmin(admin);
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -163,9 +161,8 @@ class AdminService implements IAdminService {
       }
       // update admin
       admin.profile_picture = `/uploads/avatars/${changeProfilePictureRequsetDTO.profile_picture}`;
-      const updatedAdmin = await this.adminDao.updateAdmin(admin);
-      if (!updatedAdmin) throw new AppError("Oops! failed ", 500);
-      return updatedAdmin.profile_picture;
+      await this.adminDao.updateAdmin(admin);
+      return admin.profile_picture;
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
