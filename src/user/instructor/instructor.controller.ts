@@ -78,8 +78,8 @@ class InstructorController{
 
   public async getInstructorCourses(req: Request, res: Response, next: NextFunction) {
     try {
-      const courses = await this.instructorService.getInstructorCourses(req.params.instructor_id);
-      res.status(200).json({status: "success", data: courses});
+      const instructorCourses = await this.instructorService.getInstructorCourses(req.params.instructor_id);
+      res.status(200).json({status: "success", data: instructorCourses});
     } catch (error) {
       next(error);
     }

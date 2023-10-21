@@ -85,7 +85,7 @@ class AdminDAO {
       connection.release();
     } catch (err) {
       if (connection) connection.release();
-      throw new Error((err as Error).message);
+      throw new AppError((err as Error).message, 500);    
     }
   }
 }

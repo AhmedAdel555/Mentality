@@ -34,7 +34,7 @@ class PricingPlanController{
 
   public async updatePricingPlan(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.pricingPlanService.updatePricingPlan({ ...req.body, id: +(req.params.pricing_plan_id)});
+      await this.pricingPlanService.updatePricingPlan({ ...req.body, pricing_plan_id: +(req.params.pricing_plan_id)});
       res.status(200).json({ status: "success", data: null });
     } catch (error) {
       next(error);

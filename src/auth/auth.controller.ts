@@ -13,7 +13,7 @@ class AuthController {
       const token = await this.authService.login({ ...req.body });
       return res
         .status(200)
-        .json({ status: "succeed", data: { token: token } });
+        .json({ status: "success", data: { token: token } });
     } catch (err) {
       next(err);
     }
@@ -22,7 +22,7 @@ class AuthController {
   public async register(req: Request, res: Response, next: NextFunction) {
     try {
       await this.authService.register({ ...req.body });
-      return res.status(201).json({ status: "succeed", data: null });
+      return res.status(201).json({ status: "success", data: null });
     } catch (error) {
       next(error);
     }

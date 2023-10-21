@@ -80,7 +80,7 @@ class TopicDAO {
 
       const topics = await connection.query(sql);
       connection.release();
-      return topics.rows;
+      return topics.rows[0].result;
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
@@ -139,7 +139,7 @@ class TopicDAO {
       WHERE t.id = $1;`;
       const topic = await connection.query(sql, [id]);
       connection.release();
-      return topic.rows[0];
+      return topic.rows[0].result[0];
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);

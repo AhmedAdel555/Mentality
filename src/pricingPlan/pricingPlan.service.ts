@@ -32,7 +32,7 @@ class PricingPlanService implements IPricingPlanServicesInterface {
     requestUpdatePricingPlanDTO: RequestUpdatePricingPlanDTO
   ): Promise<void> {
     try {
-      const pricingPlanFromDB = await this.pricingPlanDAO.getPricingPlanById(requestUpdatePricingPlanDTO.id);
+      const pricingPlanFromDB = await this.pricingPlanDAO.getPricingPlanById(requestUpdatePricingPlanDTO.pricing_plan_id);
       if (!pricingPlanFromDB) throw new AppError("pricing plan not found", 404);
       pricingPlanFromDB.plan_name = requestUpdatePricingPlanDTO.plan_name;
       pricingPlanFromDB.price = +(requestUpdatePricingPlanDTO.price.toFixed(2));
@@ -49,7 +49,7 @@ class PricingPlanService implements IPricingPlanServicesInterface {
 
   public async getAllPricingPlan(): Promise<PricingPlanModel[]> {
     try {
-      const pricingPlans = await this.getAllPricingPlan();
+      const pricingPlans = await this.pricingPlanDAO.getAllPricingPlans();
       return pricingPlans;
     } catch (err) {
       throw new AppError(
@@ -61,7 +61,7 @@ class PricingPlanService implements IPricingPlanServicesInterface {
   public async getPricingPlan(id: number): Promise<PricingPlanModel> {
     try {
       const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(id);
-      if (!pricingPlan) throw new AppError("oops no pricing plan found", 500);
+      if (!pricingPlan) throw new AppError("oops no pricing plan found", 404);
       return pricingPlan;
     } catch (err) {
       throw new AppError(

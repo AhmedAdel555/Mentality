@@ -22,7 +22,7 @@ class LessonDAO {
     }
   }
 
-  public async getAllLessons(): Promise<LessonModel[]> {
+  public async getAllCourseLessons(courseId: string): Promise<LessonModel[]> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
@@ -52,12 +52,27 @@ class LessonDAO {
         )
       )) AS result 
       FROM lessons l JOIN courses c ON l.course_id = c.id
-      JOIN instructors i ON c.instructor_id = i.id ;
+      JOIN instructors i ON c.instructor_id = i.id 
+      WHERE l.course_id = $1;
       `;
 
-      const lessons = await connection.query(sql);
+      const lessons = await connection.query(sql, [courseId]);
       connection.release();
       return lessons.rows[0].result;
+    } catch (err) {
+      if (connection) connection.release();
+      throw new AppError((err as Error).message, 500);
+    }
+  }
+
+  public async getCountLessonInCourse(courseId: string): Promise<number>{
+    let connection: PoolClient | null = null;
+    try {
+      connection = await db.connect();
+      const sql = `SELECT COUNT(*) from lessons WHERE course_id = $1`;
+      const countLesson = await connection.query(sql, [courseId]);
+      connection.release();
+      return parseInt(countLesson.rows[0].count);
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);

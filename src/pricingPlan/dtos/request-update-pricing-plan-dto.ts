@@ -1,7 +1,7 @@
 import Roles from "../../utils/roles.enum"
 
 interface RequestUpdatePricingPlanDTO {
-  id: number
+  pricing_plan_id: number
   user_id:string
   user_role:Roles
   plan_name:string

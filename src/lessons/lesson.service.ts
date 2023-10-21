@@ -17,12 +17,12 @@ class LessonService implements ILessonService {
     try{
       const course = await this.courseDAO.getCourseById(addLessonRequestDTO.course_id);
       if(!course) throw new AppError("course not found", 404);
-      const lessons = await this.lessonDAO.getAllLessons();
-      const courseLessons = lessons.filter((lesson) => {
-          return lesson.course.id === addLessonRequestDTO.course_id;
-      })
-      const lesson = new LessonModel(addLessonRequestDTO.title, courseLessons.length + 1, course);
+
+      const count = await this.lessonDAO.getCountLessonInCourse(addLessonRequestDTO.course_id);
+    
+      const lesson = new LessonModel(addLessonRequestDTO.title, count + 1, course);
       await this.lessonDAO.createLesson(lesson);
+
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -35,10 +35,10 @@ class LessonService implements ILessonService {
       try{
         const course = await this.courseDAO.getCourseById(courseId);
         if(!course) throw new AppError("course not found", 404);
-        const lessons = await this.lessonDAO.getAllLessons();
-        const courseLessons:LessonResponsDTO[]  = lessons.filter((lesson, index) => {
-            return lesson.course.id === courseId;
-        }).map((lesson, index) => {
+
+        const lessons = await this.lessonDAO.getAllCourseLessons(courseId);
+
+        const courseLessons:LessonResponsDTO[]  = lessons.map((lesson, index) => {
             return {
                id: lesson.id,
                title: lesson.title,
@@ -46,6 +46,7 @@ class LessonService implements ILessonService {
             }
         })
         return courseLessons;
+
       } catch (err) {
         throw new AppError(
           (err as AppError).message,
@@ -56,13 +57,16 @@ class LessonService implements ILessonService {
 
   public async getLesson(id: string): Promise<LessonResponsDTO> {
     try{
+
       const lesson = await this.lessonDAO.getlessonById(id);
       if(!lesson) throw new AppError("lesson not found", 404);
+
       return {
         id: lesson.id,
         title: lesson.title,
         lesson_order: lesson.lesson_order
       }
+
     }catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -73,14 +77,18 @@ class LessonService implements ILessonService {
   
   public async updateLesson(updateLessonRequestDTO: UpdateLessonRequestDTO): Promise<void> {
       try{
-        const lesson = await this.lessonDAO.getlessonById(updateLessonRequestDTO.id);
+        const lesson = await this.lessonDAO.getlessonById(updateLessonRequestDTO.lesson_id);
         if(!lesson) throw new AppError("lesson not found", 404);
+
         if(lesson.course.instructor.id  !== updateLessonRequestDTO.user_id){
           throw new AppError("you can't update this course", 403);
         }
+
         lesson.title = updateLessonRequestDTO.title
         lesson.lesson_order = updateLessonRequestDTO.lesson_order
+
         await this.lessonDAO.updateLesson(lesson);
+
       }catch (err) {
         throw new AppError(
           (err as AppError).message,
@@ -91,12 +99,15 @@ class LessonService implements ILessonService {
 
   public async deleteLesson(deleteLessonRequestDTO:DeleteLessonRequestDTO): Promise<void> {
     try{
-      const lesson = await this.lessonDAO.getlessonById(deleteLessonRequestDTO.id);
+      const lesson = await this.lessonDAO.getlessonById(deleteLessonRequestDTO.lesson_id);
       if(!lesson) throw new AppError("lesson not found", 404);
+
       if(lesson.course.instructor.id !== deleteLessonRequestDTO.user_id){
         throw new AppError('you do not have permmision to do this', 403);
       }
-      await this.lessonDAO.deleteLessonById(deleteLessonRequestDTO.id);
+
+      await this.lessonDAO.deleteLessonById(lesson.id);
+      
     }catch (err) {
       throw new AppError(
         (err as AppError).message,

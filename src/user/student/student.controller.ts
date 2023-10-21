@@ -1,7 +1,6 @@
 import { Request, Response,  NextFunction } from "express";
 import StudentService from "./student.service";
 import StudentDAO from "./student.dao";
-import CoursesRegistrationsDAO from "../../coursesRegistrations/coursesRegistrations.dao";
 import SubscriptionDAO from "../../subscription/subscription.dao";
 
 class StudentController{
@@ -10,7 +9,7 @@ class StudentController{
   public async getAllStudents(req: Request , res: Response, next: NextFunction){
       try{
         const students = await this.studentService.getAllStudents();
-        res.status(200).json({'status': 'success', data: students});
+        res.status(200).json({status: 'success', data: students});
       }catch(error){
         next(error);
       }
@@ -19,7 +18,7 @@ class StudentController{
   public async getStudent(req: Request , res: Response, next: NextFunction){
     try{
       const student = await this.studentService.getStudent(req.params.student_id);
-      res.status(200).json({'status': 'success', data: student});
+      res.status(200).json({status: 'success', data: student});
     }catch(error){
       next(error);
     }
@@ -28,7 +27,7 @@ class StudentController{
   public async updateStudent(req: Request , res: Response, next: NextFunction){
     try{
       await this.studentService.updateStudent({...req.body});
-      res.status(200).json({'status': 'success', data: null});
+      res.status(200).json({status: 'success', data: null});
     }catch(error){
       next(error);
     }
@@ -68,13 +67,5 @@ class StudentController{
     }
   }
 
-  public async getStudentCourses(req: Request, res: Response, next: NextFunction){
-    try{
-      const courses = await this.studentService.getStudentCourses(req.body.user_id);
-      res.status(200).json({status: "success", data: courses});
-    }catch (error) {
-      next(error);
-    }
-  }
 }
-export default new StudentController(new StudentService(new StudentDAO, new CoursesRegistrationsDAO(), new SubscriptionDAO()));
+export default new StudentController(new StudentService(new StudentDAO, new SubscriptionDAO));

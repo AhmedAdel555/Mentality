@@ -16,13 +16,13 @@ const validateAuth = (req: Request, _res: Response, next: NextFunction) => {
           req.body.user_role = decode.role;
           next();
         } else {
-          throw new AppError("Opps error , please sign in", 403);
+          throw new AppError("Opps , please sign in", 403);
         }
       } else {
-        throw new AppError("Opps error , please sign in", 403);
+        throw new AppError("Opps , please sign in", 403);
       }
     } else {
-      throw new AppError("Opps error , please sign in", 403);
+      throw new AppError("Opps , please sign in", 403);
     }
   } catch (error) {
     next(error);

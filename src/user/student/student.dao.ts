@@ -48,7 +48,8 @@ class StudentDAO {
       return student.rows[0];
     } catch (err) {
       if (connection) connection.release();
-      throw new AppError((err as Error).message, 500);    }
+      throw new AppError((err as Error).message, 500);    
+    }
   }
 
   public async getStudentByEmail(email:string): Promise<StudentModel | undefined>{
@@ -80,7 +81,7 @@ class StudentDAO {
       } catch (err) {
         if (connection) connection.release();
         throw new AppError((err as Error).message, 500);
-            }
+      }
   }
 
   public async deleteStudentById(id:string): Promise<void>{

@@ -8,7 +8,7 @@ class LessonController{
 
   public async addLesson(req: Request, res: Response, next: NextFunction){
       try{
-        await this.lessonService.addLesson({...req.body, course_id: req.params.course_id})
+        await this.lessonService.addLesson({...req.body, ...req.params})
         res.status(201).json({status: "success", data: null});
       }catch(error){
         next(error)
@@ -35,7 +35,7 @@ class LessonController{
 
   public async updateLesson(req: Request, res: Response, next: NextFunction){
     try{
-      await this.lessonService.updateLesson({...req.body, id: req.params.lesson_id, course_id: req.params.course_id});
+      await this.lessonService.updateLesson({...req.body, ...req.params});
       res.status(200).json({status: "success", data: null});
     }catch(error){
       next(error)
@@ -44,7 +44,7 @@ class LessonController{
 
   public async deleteLesson(req: Request, res: Response, next: NextFunction){
     try{
-      await this.lessonService.deleteLesson({...req.body,id:req.params.lesson_id, course_id: req.params.course_id});
+      await this.lessonService.deleteLesson({...req.body, ...req.params});
       res.status(200).json({status: "success", data: null});
     }catch(error){
       next(error)

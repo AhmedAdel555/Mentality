@@ -4,7 +4,7 @@ import Levels from "../levels.enum";
 interface UpdateCourseRequestDTO {
   user_id:string
   user_role:Roles
-  id: string
+  course_id: string
   title: string,
   description : string,
   level: Levels,

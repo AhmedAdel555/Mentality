@@ -23,12 +23,13 @@ class InstructorService implements IInstructorService {
     try{
       const instractorFromDB = await this.instructorDAO.getInstructorByEmail(addInstructorRequestDTO.email);
       if(instractorFromDB) throw new AppError("email is already exist", 409);
+      const hashedPassword = bcrypt.hashSync(`${addInstructorRequestDTO.password}${config.SECRETHASHINGKEY}`,10)
       const instructor = new InstructorModel(
         addInstructorRequestDTO.user_name,
         addInstructorRequestDTO.email,
         addInstructorRequestDTO.title,
         addInstructorRequestDTO.description,
-        bcrypt.hashSync(`${addInstructorRequestDTO.password}${config.SECRETHASHINGKEY}`,10),
+        hashedPassword,
         "/uploads/avatars/defult.jpg"
       );
     await this.instructorDAO.createInstructor(instructor);
@@ -64,6 +65,7 @@ class InstructorService implements IInstructorService {
       );
     }
   }
+
   public async getInstructor(id: string): Promise<ResponseInstractorInfoDTO> {
     try{
       const instructorFromDB = await this.instructorDAO.getInstructorById(id);
@@ -142,10 +144,11 @@ class InstructorService implements IInstructorService {
       );
     }
   }
+
   public async changeProfilePicture(changeProfilePictureRequsetDTO: ChangeProfilePictureRequsetDTO): Promise<string> {
     try {
       if (!changeProfilePictureRequsetDTO.profile_picture)
-          throw new AppError("Oops!", 401);
+          throw new AppError("Oops file not uploaded!", 401);
       // get admin by id
       const instructor = await this.instructorDAO.getInstructorById(changeProfilePictureRequsetDTO.user_id);
       if(!instructor) throw new AppError("instructor not found", 404);
@@ -174,10 +177,8 @@ class InstructorService implements IInstructorService {
 
   public async getInstructorCourses(id: string): Promise<InstructorCoursesResponse[]> {
     try {
-      const courses = await this.coursesDAO.getAllCourses();
-      const instructorCourses: InstructorCoursesResponse[] = courses.filter((course, index) => {
-        return course.instructor.id === id ;
-      }).map((course, index) => {
+      const instructorCoursesFromDB = await this.coursesDAO.getInstructorCourses(id);
+      const instructorCourses: InstructorCoursesResponse[] = instructorCoursesFromDB.map((course, index) => {
         return {
           id : course.id,
           title : course.title,

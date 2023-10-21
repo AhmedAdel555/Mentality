@@ -2,14 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import CoursesService from "./courses.service";
 import CoursesDAO from "./courses.dao";
 import InstructorDAO from "../user/instructor/instructor.dao";
-import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 
 class CoursesContoller {
   constructor(private readonly courseService: CoursesService) {}
 
   public async createCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.courseService.addCourse({...req.body,picture: req.file?.filename,});
+      await this.courseService.addCourse({...req.body, picture: req.file?.filename,});
       return res.status(201).json({ status: "success", data: null });
     } catch (error) {
       next(error);
@@ -36,7 +35,7 @@ class CoursesContoller {
 
   public async updateCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.courseService.updateCourse({...req.body,id: req.params.course_id});
+      await this.courseService.updateCourse({...req.body, ...req.params});
       return res.status(201).json({ status: "success", data: null});
     } catch (error) {
       next(error);
@@ -45,7 +44,7 @@ class CoursesContoller {
 
   public async updateCoursePicture(req: Request, res: Response, next: NextFunction) {
     try {
-      const picture = await this.courseService.updateCoursePicture({...req.body, id: req.params.course_id, picture: req.file?.filename,});
+      const picture = await this.courseService.updateCoursePicture({...req.body, ...req.params, picture: req.file?.filename});
       return res.status(201).json({ status: "success", data: picture });
     } catch (error) {
       next(error);
@@ -53,22 +52,14 @@ class CoursesContoller {
   }
   public async deleteCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.courseService.deleteCourse({...req.body, id: req.params.course_id});
+      await this.courseService.deleteCourse({...req.body, ...req.params});
       return res.status(201).json({ status: "success", data: null });
     } catch (error) {
       next(error);
     }
   }
 
-  public async getCourseStudents(req: Request, res: Response, next: NextFunction){
-     try{
-      const students = await this.courseService.getCourseUsers(req.params.course_id)
-     res.status(200).json({status: "success", data: students});
-     }catch (error) {
-      next(error);
-    }
-  }
+
 }
 export default new CoursesContoller(new CoursesService(new CoursesDAO(), 
-                                    new InstructorDAO(), 
-                                    new CoursesRegistrationsDAO()));
+                                    new InstructorDAO()));

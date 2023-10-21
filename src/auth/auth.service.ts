@@ -27,7 +27,7 @@ class AuthService {
     role: Roles,
     email: string
   ): Promise<UserModel | undefined> {
-    let user: UserModel | undefined
+    let user: UserModel | undefined;
     if (role === Roles.Student) {
       user = await this.studentDAO.getStudentByEmail(email);
     }
@@ -78,23 +78,28 @@ class AuthService {
 
   public async register(studentRegisterRequestDto: StudentRegisterRequestDto) {
     try {
+      // check for email exist
       const studentFromDB = await this.studentDAO.getStudentByEmail(
         studentRegisterRequestDto.email
       );
       if (studentFromDB) throw new AppError("email is already exist", 409);
+      // create student
+      const hashedPassword = bcrypt.hashSync(
+        `${studentRegisterRequestDto.password}${config.SECRETHASHINGKEY}`,
+        10
+      );
       const student = new StudentModel(
         studentRegisterRequestDto.user_name,
         studentRegisterRequestDto.email,
-        bcrypt.hashSync(
-          `${studentRegisterRequestDto.password}${config.SECRETHASHINGKEY}`,
-          10
-        ),
+        hashedPassword,
         "/uploads/avatars/defult.jpg"
       );
-      await this.studentDAO.createStudent(student);
       const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(1);
       if (!pricingPlan) throw new AppError("oops there is a problem", 404);
       const subscription = new SubscriptionModel(student, pricingPlan);
+      // save student
+      await this.studentDAO.createStudent(student);
+      // student subscribe in basic plan by defult
       await this.subscriptionDAO.createSubscription(subscription);
     } catch (err) {
       throw new AppError(

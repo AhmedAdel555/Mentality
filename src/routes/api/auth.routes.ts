@@ -37,7 +37,7 @@ routes.post(
       .isEmail()
       .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
       .withMessage("please enter a valide email"),
-    body("user_name").trim().isLength({ min: 5 }),
+    body("user_name").trim().isLength({ min: 3 }),
     body("password")
       .trim()
       .matches(

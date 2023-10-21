@@ -106,15 +106,6 @@ routes
     (req: Request, res: Response, next: NextFunction) => {
       InstructorController.getInstructor(req, res, next);
     }
-  )
-  .delete(
-    [param("instructor_id").isUUID()],
-    validateInput,
-    isAuth,
-    allowTo(Roles.Admin),
-    (req: Request, res: Response, next: NextFunction) => {
-      InstructorController.deleteInstructor(req, res, next);
-    }
   );
 
 routes.get(

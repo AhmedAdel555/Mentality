@@ -1,5 +1,6 @@
 import { NextFunction, Router, Request, Response } from "express";
 import CoursesContoller from "../../courses/courses.controller";
+import coursesRegistrationsController from "../../coursesRegistrations/coursesRegistrations.controller";
 import lessonController from "../../lessons/lesson.controller";
 import topicsContoller from "../../topics/topics.contoller";
 import { body, param } from "express-validator";
@@ -69,25 +70,39 @@ routes
     }
   );
 
-routes.get(
-  "/:course_id/students",
-  param("course_id").isUUID(),
-  isAuth,
-  allowTo(Roles.Admin, Roles.Instructor, Roles.Student),
-  (req: Request, res: Response, next: NextFunction) => {
-    CoursesContoller.getCourseStudents(req, res, next);
-  }
-);
-
 routes.patch(
   "/:course_id/change-picture",
   uploadCoursesbanners.single("picture"),
   validateFileUpload,
   [param("course_id").isUUID()],
+  validateInput,
   isAuth,
   allowTo(Roles.Instructor),
   (req: Request, res: Response, next: NextFunction) => {
     CoursesContoller.updateCoursePicture(req, res, next);
+  }
+);
+
+// course registration
+
+routes.post(
+  "/:course_id/register",
+  [param("course_id").isUUID()],
+  validateInput,
+  isAuth,
+  allowTo(Roles.Student),
+  (req: Request, res: Response, next: NextFunction) => {
+    coursesRegistrationsController.addCoursesRegistration(req, res, next);
+  }
+);
+
+routes.get(
+  "/:course_id/students",
+  [param("course_id").isUUID()],
+  validateInput,
+  isAuth,
+  (req: Request, res: Response, next: NextFunction) => {
+    coursesRegistrationsController.getCourseStudents(req, res, next)
   }
 );
 
@@ -102,7 +117,10 @@ routes
     }
   )
   .post(
-    [body("title").trim().notEmpty(), param("course_id").isUUID()],
+    [
+      body("title").trim().notEmpty(), 
+      param("course_id").isUUID()
+    ],
     validateInput,
     isAuth,
     allowTo(Roles.Instructor),
@@ -168,7 +186,7 @@ routes
     isAuth,
     allowTo(Roles.Instructor),
     (req: Request, res: Response, next: NextFunction) => {
-      topicsContoller.addTopic(req,res,next);
+      topicsContoller.addTopic(req, res, next);
     }
   )
   .get(

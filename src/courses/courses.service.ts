@@ -1,6 +1,4 @@
-import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 import InstructorDAO from "../user/instructor/instructor.dao";
-import ResponeStudentInfoDTO from "../user/student/dtos/respone-student-info-dto";
 import AppError from "../utils/appError";
 import CourseModel from "./course.model";
 import CoursesDAO from "./courses.dao";
@@ -15,40 +13,17 @@ import path from "path";
 
 class CoursesService implements ICoursesServices {
   constructor(private readonly coursesDAO: CoursesDAO, 
-              private readonly instructorDAO: InstructorDAO,
-              private readonly courseRegistrationDAO: CoursesRegistrationsDAO) {}
+              private readonly instructorDAO: InstructorDAO) {}
   
-  public async getCourseUsers(id: string): Promise<ResponeStudentInfoDTO[]> {
-    try{
-      const courseRegistrations = await this.courseRegistrationDAO.getAllCourseRegistrations();
-      const users = courseRegistrations.filter((courseRegistration, index) => {
-          return courseRegistration.course.id === id
-      }).map((courseRegistration, index) => {
-        return {
-          id: courseRegistration.student.id,
-          user_name: courseRegistration.student.user_name,
-          email: courseRegistration.student.email,
-          profile_picture: courseRegistration.student.profile_picture,
-          phone_number: courseRegistration.student.phone_number,
-          address: courseRegistration.student.address,
-          points: courseRegistration.student.points,
-        }
-      })
-
-      return users;
-    }catch (err) {
-      throw new AppError(
-        (err as AppError).message,
-        (err as AppError).statusCode
-      );
-    }
-  }
 
   public async addCourse(addCourseRequest: AddCourseRequestDTO): Promise<void> {
     try {
-      if (!addCourseRequest.picture) throw new AppError("course picture is required", 404);
+      // validate data 
+      if (!addCourseRequest.picture) throw new AppError("course picture not uploaded", 404);
+      // get instructor
       const instructor = await this.instructorDAO.getInstructorById(addCourseRequest.user_id);
       if(!instructor) throw new AppError("Instructor not found", 404);
+      // create course
       const course: CourseModel = new CourseModel(
         addCourseRequest.title,
         addCourseRequest.description,
@@ -57,6 +32,7 @@ class CoursesService implements ICoursesServices {
         `/uploads/banners/${addCourseRequest.picture}`,
         instructor
       );
+      // save it
       await this.coursesDAO.createCourse(course);
     } catch (err) {
       throw new AppError(
@@ -134,16 +110,20 @@ class CoursesService implements ICoursesServices {
 
   public async updateCourse(updateCourseRequest: UpdateCourseRequestDTO): Promise<void> {
     try {
-      const course = await this.coursesDAO.getCourseById(updateCourseRequest.id);
+      const course = await this.coursesDAO.getCourseById(updateCourseRequest.course_id);
       if (!course) throw new AppError(`course not found`, 404);
+
       if (updateCourseRequest.user_id !== course.instructor.id) {
         throw new AppError("you can't update this course", 403);
       }
+
       course.title = updateCourseRequest.title;
       course.description = updateCourseRequest.description;
       course.requirements = updateCourseRequest.requirements;
       course.level = updateCourseRequest.level;
+
       await this.coursesDAO.updateCourse(course);
+
     } catch (err) {
       throw new AppError(
         (err as AppError).message,
@@ -154,12 +134,15 @@ class CoursesService implements ICoursesServices {
 
   public async updateCoursePicture(updateCoursePictureRequest:UpdateCoursePictureRequest): Promise<string>{
     try{
-      if (!updateCoursePictureRequest.picture) throw new AppError("course picture is required", 404);
-      const course = await this.coursesDAO.getCourseById(updateCoursePictureRequest.id);
+      if (!updateCoursePictureRequest.picture) throw new AppError("course picture is not uploaded", 404);
+
+      const course = await this.coursesDAO.getCourseById(updateCoursePictureRequest.course_id);
       if (!course) throw new AppError(`course not found`, 404);
+
       if (updateCoursePictureRequest.user_id !== course.instructor.id) {
         throw new AppError("you can't update this course", 403);
       }
+
       const filePath = path.join(
         __dirname,
         "../..",
@@ -168,7 +151,9 @@ class CoursesService implements ICoursesServices {
       this.deleteFile(path.join(filePath));
 
       course.picture = `/uploads/banners/${updateCoursePictureRequest.picture}`;
+
       await this.coursesDAO.updateCourse(course);
+
       return course.picture
     } catch (err) {
       throw new AppError(
@@ -180,18 +165,23 @@ class CoursesService implements ICoursesServices {
 
   public async deleteCourse(deleteCourseRequestDTO: DeleteCourseRequestDTO) : Promise<void> {
     try {
-      const course = await this.coursesDAO.getCourseById(deleteCourseRequestDTO.id);
+
+      const course = await this.coursesDAO.getCourseById(deleteCourseRequestDTO.course_id);
       if (!course) throw new AppError(`course not found`, 404);
+
       if (deleteCourseRequestDTO.user_id !== course.instructor.id) {
         throw new AppError("you can't delete this course", 403);
       }
-      await this.coursesDAO.deleteCourseById(deleteCourseRequestDTO.id);
+
+      await this.coursesDAO.deleteCourseById(course.id);
+
       const filePath = path.join(
         __dirname,
         "../..",
         course.picture
       );
       this.deleteFile(path.join(filePath));
+      
     } catch (err) {
       throw new AppError(
         (err as AppError).message,

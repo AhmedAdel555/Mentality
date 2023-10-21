@@ -21,13 +21,14 @@ class AdminService implements IAdminService {
       );
       if (adminFromDB) throw new AppError("email is already exist", 409);
       // check for email or not ?
+      const hashedPassword = bcrypt.hashSync(
+        `${addAdminRequestDTO.password}${config.SECRETHASHINGKEY}`,
+        10
+      )
       const admin: AdminModel = new AdminModel(
         addAdminRequestDTO.user_name,
         addAdminRequestDTO.email,
-        bcrypt.hashSync(
-          `${addAdminRequestDTO.password}${config.SECRETHASHINGKEY}`,
-          10
-        ),
+        hashedPassword,
         "/uploads/avatars/defult.jpg"
       );
       await this.adminDao.createAdmin(admin);
@@ -143,7 +144,7 @@ class AdminService implements IAdminService {
     try {
       // check for picture
       if (!changeProfilePictureRequsetDTO.profile_picture)
-        throw new AppError("Oops!", 401);
+        throw new AppError("Oops file not uploaded!", 401);
       // get admin with the id
       const admin = await this.adminDao.getAdminById(
         changeProfilePictureRequsetDTO.user_id

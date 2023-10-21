@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import studentController from "../../user/student/student.controller";
+import coursesRegistrationsController from "../../coursesRegistrations/coursesRegistrations.controller";
 import { body, param } from "express-validator";
 import validateInput from "../../middlewares/validateInput";
 import validateFileUpload from "../../middlewares/validateFileUpload";
@@ -20,8 +21,7 @@ routes
   )
   .patch(
     [
-      body("email").trim().isEmail(),
-      body("user_name").trim().isLength({ min: 5 }),
+      body("user_name").trim().isLength({ min: 3 }),
       body("phone_number").custom((value, { req }) => {
         return value === null || typeof value === "string";
       }),
@@ -43,38 +43,34 @@ routes
     [param("student_id").isUUID()],
     validateInput,
     isAuth,
-    allowTo(Roles.Admin, Roles.Instructor, Roles.Student),
     (req: Request, res: Response, next: NextFunction) => {
       studentController.getStudent(req, res, next);
     }
-  )
-  .delete(
-    [param("student_id").isUUID()],
-    validateInput,
-    isAuth,
-    allowTo(Roles.Admin),
-    (req: Request, res: Response, next: NextFunction) => {
-      studentController.deleteStudent(req, res, next);
-    }
   );
 
-routes.get('/courses', isAuth, allowTo(Roles.Student),   
+routes.get(
+  "/:student_id/courses",
+  [param("student_id").isUUID()],
+  validateInput,
+  isAuth,
   (req: Request, res: Response, next: NextFunction) => {
-    studentController.getStudentCourses(req, res, next);
-})
+    coursesRegistrationsController.getStudentCourses(req, res, next);
+  }
+);
 
 routes.patch(
   "/reset-password",
   [
+    body("old_password").trim().notEmpty(),
     body("password")
       .trim()
       .matches(
-        "^(?=.*d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-#$.%&*@])(?=.*[a-zA-Z]).{8,16}$"
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,16}$/
       )
       .withMessage(
         `password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character`
       ),
-    body("confirmPassword").custom((value, { req }) => {
+    body("confirm_password").custom((value, { req }) => {
       return value === req.body.password;
     }),
   ],

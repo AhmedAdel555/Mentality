@@ -52,11 +52,49 @@ class CoursesDAO {
         )
       )) AS result
       FROM courses c 
-       i ON c.instructorJOIN instructors_id = i.id ;
+      JOIN instructors i ON c.instructor_id = i.id
       `
       const courses = await connection.query(sql);
       connection.release();
       return courses.rows[0].result;
+    } catch (err) {
+      if (connection) connection.release();
+      throw new AppError((err as Error).message, 500);
+    }
+  }
+
+  public async getInstructorCourses(instructorId: string): Promise<CourseModel[]> {
+    let connection: PoolClient | null = null;
+    try {
+      connection = await db.connect();
+      const sql = `
+      SELECT jsonb_agg(jsonb_build_object(
+        'id', c.id,
+        'title', c.title,
+        'description', c.description,
+        'requirements', c.requirements,
+        'picture', c.requirements,
+        'level', c.level,
+        'instructor', jsonb_build_object(
+          'id', i.id,
+          'user_name', i.user_name,
+          'email', i.email,
+          'password', i.password,
+          'profile_picture', i.profile_picture,
+          'phone_number', i.phone_number,
+          'address', i.address,
+          'reset_password_token', i.reset_password_token,
+          'title', i.title,
+          'description', i.description
+        )
+      )) AS result
+      FROM courses c 
+      JOIN instructors i ON c.instructor_id = i.id
+      WHERE c.instructor_id = $1;
+      `
+      const instructorCourses = await connection.query(sql, [instructorId]);
+      connection.release();
+      return instructorCourses.rows[0].result;
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);

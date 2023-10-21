@@ -13,6 +13,5 @@ class CoursesRegistrationsModel {
       this.course = course;
       this.course_progress = 0;
     }
-
 }
 export default CoursesRegistrationsModel;
