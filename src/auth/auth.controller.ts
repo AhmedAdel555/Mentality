@@ -27,6 +27,15 @@ class AuthController {
       next(error);
     }
   }
+
+  public async getForgotPassowrd(req: Request, res: Response, next: NextFunction) {
+    try {
+      await this.authService.getForgotPassword({ ...req.body });
+      return res.status(200).json({ status: "success", data: null });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new AuthController(

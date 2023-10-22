@@ -3,6 +3,7 @@ import AuthController from "../../auth/auth.controller";
 import Roles from "../../utils/roles.enum";
 import { body } from "express-validator";
 import validateResult from "../../middlewares/validateInput";
+import authController from "../../auth/auth.controller";
 const routes = Router();
 
 routes.post(
@@ -55,5 +56,21 @@ routes.post(
     AuthController.register(req, res, next);
   }
 );
+
+routes.get(
+  "/forgot-password",
+  [
+    body("email")
+      .trim()
+      .isEmail()
+      .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
+      .withMessage("please enter an valide email"),
+    body("role").isIn(Object.values(Roles)),
+  ],
+  validateResult,
+  (req: Request, res: Response, next: NextFunction) => {
+    authController.getForgotPassowrd(req, res, next);
+  }
+)
 
 export default routes;

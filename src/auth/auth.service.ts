@@ -13,6 +13,8 @@ import SubscriptionDAO from "../subscription/subscription.dao";
 import SubscriptionModel from "../subscription/subscription.model";
 import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
 import AppError from "../utils/appError";
+import GetForgotPasswordRequestDTO from "./dtos/get-forgot-password-request-dto";
+import sgMail from "@sendgrid/mail";
 
 class AuthService {
   constructor(
@@ -76,7 +78,9 @@ class AuthService {
     }
   }
 
-  public async register(studentRegisterRequestDto: StudentRegisterRequestDto) {
+  public async register(
+    studentRegisterRequestDto: StudentRegisterRequestDto
+  ): Promise<void> {
     try {
       // check for email exist
       const studentFromDB = await this.studentDAO.getStudentByEmail(
@@ -106,6 +110,73 @@ class AuthService {
         (err as AppError).message,
         (err as AppError).statusCode
       );
+    }
+  }
+
+  public async getForgotPassword(
+    getForgotPasswordRequestDTO: GetForgotPasswordRequestDTO
+  ): Promise<void> {
+    try {
+      if (getForgotPasswordRequestDTO.role === Roles.Admin) {
+        const admin = await this.adminDAO.getAdminByEmail(
+          getForgotPasswordRequestDTO.email
+        );
+        if (!admin) throw new AppError("email not found", 404);
+        const token = this.generateRandomToken();
+        admin.reset_password_token = token;
+        await this.adminDAO.updateAdmin(admin);
+        await this.sendEmail(admin.email, token);
+      } else if (getForgotPasswordRequestDTO.role === Roles.Instructor) {
+        const instructor = await this.instructorDAO.getInstructorByEmail(
+          getForgotPasswordRequestDTO.email
+        );
+        if (!instructor) throw new AppError("email not found", 404);
+        const token = this.generateRandomToken();
+        instructor.reset_password_token = token;
+        await this.instructorDAO.updateInstructor(instructor);
+        await this.sendEmail(instructor.email, token);
+      } else if (getForgotPasswordRequestDTO.role === Roles.Student) {
+        const student = await this.studentDAO.getStudentByEmail(
+          getForgotPasswordRequestDTO.email
+        );
+        if (!student) throw new AppError("email not found", 404);
+        const token = this.generateRandomToken();
+        student.reset_password_token = token;
+        await this.studentDAO.updateStudent(student);
+        await this.sendEmail(student.email, token);
+      }
+    } catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode || 500
+      );
+    }
+  }
+
+  private generateRandomToken(): string {
+    let token = "";
+    for (let i = 0; i < 8; i++) {
+      token += Math.floor(Math.random() * 9) + 1;
+    }
+    return token;
+  }
+
+  private async sendEmail(email: string, message: string): Promise<void> {
+    try {
+      sgMail.setApiKey(config.SENDGRID_API_KEY as string);
+      const msg = {
+        to: [email],
+        from: {
+          name: "Mentality",
+          email: "ahmedbassiouni555@gmail.com",
+        }, // Use the email address or domain you verified above
+        subject: "Sending with Twilio SendGrid is Fun",
+        text: "and easy to do anywhere, even with Node.js",
+        html: `<strong>you reset passweord token is ${message}</strong>`,
+      };
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error(error);
     }
   }
 }
