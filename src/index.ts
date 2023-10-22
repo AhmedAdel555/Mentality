@@ -8,7 +8,7 @@ import AppError from "./utils/appError";
 import routes from "./routes";
 import path from "path";
 import fs from "node:fs";
-
+import swaggerDocs from "./utils/swagger";
 // create my server
 const app: Application = express();
 /*
@@ -36,6 +36,8 @@ app.use(morgan("combined"));
 
 app.use('/api', routes);
 
+swaggerDocs(app, +(config.PORT as string) || 3000)
+
 // handling non exist endpoints
 app.all('*',(_req: Request,  res:Response) => {
   res.status(404).json({ status: "error", message: "Sorry this api not found 😂"});
@@ -55,6 +57,6 @@ app.use((error:AppError, req: Request,  res:Response, _next: NextFunction) => {
 })
 
 // start server
-app.listen(config.PORT ?? 3000);
+app.listen(config.PORT || 3000);
 
 export default app;
