@@ -19,16 +19,7 @@ class SubscriptionController {
     public async getAllSubscriptions(req: Request, res: Response, next: NextFunction){
       try{
         const subscriptions = await this.subscriptionServices.getAllSubscriptions();
-        res.status(201).json({status: "success", data: subscriptions});
-      }catch (error) {
-        next(error);
-      }
-    }
-
-    public async getSubscription(req: Request, res: Response, next: NextFunction){
-      try{
-        const subscription = await this.subscriptionServices.getSubscription(req.params.subscription_id);
-        res.status(201).json({status: "success", data: subscription});
+        res.status(200).json({status: "success", data: subscriptions});
       }catch (error) {
         next(error);
       }
@@ -37,7 +28,16 @@ class SubscriptionController {
     public async deleteSubscription(req: Request, res: Response, next: NextFunction){
       try{
         await this.subscriptionServices.deleteSubscription(req.params.subscription_id);
-        res.status(201).json({status: "success", data: null});
+        res.status(200).json({status: "success", data: null});
+      }catch (error) {
+        next(error);
+      }
+    }
+
+    public async getStudentSubscriptions(req: Request, res: Response, next: NextFunction){
+      try{
+        const subscriptions = await this.subscriptionServices.getStudentSubscriptions(req.params.student_id);
+        res.status(200).json({status: "success", data: subscriptions});
       }catch (error) {
         next(error);
       }

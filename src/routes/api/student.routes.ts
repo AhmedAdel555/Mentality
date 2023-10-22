@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import studentController from "../../user/student/student.controller";
 import coursesRegistrationsController from "../../coursesRegistrations/coursesRegistrations.controller";
+import subscriptionController from "../../subscription/subscription.controller";
 import { body, param } from "express-validator";
 import validateInput from "../../middlewares/validateInput";
 import validateFileUpload from "../../middlewares/validateFileUpload";
@@ -48,16 +49,6 @@ routes
     }
   );
 
-routes.get(
-  "/:student_id/courses",
-  [param("student_id").isUUID()],
-  validateInput,
-  isAuth,
-  (req: Request, res: Response, next: NextFunction) => {
-    coursesRegistrationsController.getStudentCourses(req, res, next);
-  }
-);
-
 routes.patch(
   "/reset-password",
   [
@@ -92,5 +83,26 @@ routes.patch(
     studentController.changeProfilePicture(req, res, next);
   }
 );
+
+routes.get(
+  "/:student_id/courses",
+  [param("student_id").isUUID()],
+  validateInput,
+  isAuth,
+  (req: Request, res: Response, next: NextFunction) => {
+    coursesRegistrationsController.getStudentCourses(req, res, next);
+  }
+);
+
+routes.get(
+  "/:student_id/subscriptions",
+  [param("student_id").isUUID()],
+  validateInput,
+  isAuth,
+  allowTo(Roles.Student, Roles.Admin),
+  (req: Request, res: Response, next: NextFunction) => {
+    subscriptionController.getStudentSubscriptions(req, res, next);
+  }
+)
 
 export default routes;
