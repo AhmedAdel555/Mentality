@@ -18,6 +18,10 @@ class LessonService implements ILessonService {
       const course = await this.courseDAO.getCourseById(addLessonRequestDTO.course_id);
       if(!course) throw new AppError("course not found", 404);
 
+      if(course.instructor.id !== addLessonRequestDTO.user_id){
+        throw new AppError("you can't update this course", 403);
+      }
+
       const count = await this.lessonDAO.getCountLessonInCourse(addLessonRequestDTO.course_id);
     
       const lesson = new LessonModel(addLessonRequestDTO.title, count + 1, course);

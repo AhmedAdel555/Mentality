@@ -36,6 +36,16 @@ class AuthController {
       next(error);
     }
   }
+
+  public async updateForgottenPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      await this.authService.updateForgottenPassword({ ...req.body });
+      return res.status(200).json({ status: "success", data: null });
+    } catch (error) {
+      next(error);
+    }
+  }
+
 }
 
 export default new AuthController(

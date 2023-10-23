@@ -73,4 +73,33 @@ routes.get(
   }
 )
 
+routes.post(
+  "/forgot-password",
+  [
+    body("email")
+      .trim()
+      .isEmail()
+      .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
+      .withMessage("please enter an valide email"),
+    body("role").isIn(Object.values(Roles)),
+    body("verification_code").trim().notEmpty(),
+    body("password")
+      .trim()
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).{8,16}$/
+        )
+      .withMessage(
+        `password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character`
+      ),
+    body("confirm_password").custom((value, { req }) => {
+      return value === req.body.password;
+    }),
+  ],
+  validateResult,
+  (req: Request, res: Response, next: NextFunction) => {
+    authController.updateForgottenPassword(req, res, next);
+  }
+)
+
+
 export default routes;

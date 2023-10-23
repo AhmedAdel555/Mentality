@@ -15,6 +15,7 @@ import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
 import AppError from "../utils/appError";
 import GetForgotPasswordRequestDTO from "./dtos/get-forgot-password-request-dto";
 import sgMail from "@sendgrid/mail";
+import UpdateForgottenPasswordDTO from "./dtos/update-forgotten-password-request-dto";
 
 class AuthService {
   constructor(
@@ -144,6 +145,64 @@ class AuthService {
         student.reset_password_token = token;
         await this.studentDAO.updateStudent(student);
         await this.sendEmail(student.email, token);
+      }
+    } catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode || 500
+      );
+    }
+  }
+
+  public async updateForgottenPassword(
+    updateForgottenPasswordDTO: UpdateForgottenPasswordDTO
+  ): Promise<void> {
+    try {
+      if (updateForgottenPasswordDTO.role === Roles.Admin) {
+        const admin = await this.adminDAO.getAdminByEmail(
+          updateForgottenPasswordDTO.email
+        );
+        if (!admin) throw new AppError("email not found", 404);
+        if(admin.reset_password_token !== updateForgottenPasswordDTO.verification_code){
+          throw new AppError("verification code is incoreect", 401);
+        }
+        admin.password = bcrypt.hashSync(
+          `${updateForgottenPasswordDTO.password}${config.SECRETHASHINGKEY}`,
+          10
+        );
+        admin.reset_password_token = null;
+        await this.adminDAO.updateAdmin(admin);
+
+      } else if (updateForgottenPasswordDTO.role === Roles.Instructor) {
+        const instructor = await this.instructorDAO.getInstructorByEmail(
+          updateForgottenPasswordDTO.email
+        );
+        if (!instructor) throw new AppError("email not found", 404);
+        if(instructor.reset_password_token !== updateForgottenPasswordDTO.verification_code){
+          throw new AppError("verification code is incoreect", 401);
+        }
+        instructor.password = bcrypt.hashSync(
+          `${updateForgottenPasswordDTO.password}${config.SECRETHASHINGKEY}`,
+          10
+        );
+
+        instructor.reset_password_token = null;
+        await this.instructorDAO.updateInstructor(instructor);
+        
+      } else if (updateForgottenPasswordDTO.role === Roles.Student) {
+        const student = await this.studentDAO.getStudentByEmail(
+          updateForgottenPasswordDTO.email
+        );
+        if (!student) throw new AppError("email not found", 404);
+        if(student.reset_password_token !== updateForgottenPasswordDTO.verification_code){
+          throw new AppError("verification code is incoreect", 401);
+        }
+        student.password = bcrypt.hashSync(
+          `${updateForgottenPasswordDTO.password}${config.SECRETHASHINGKEY}`,
+          10
+        );
+        student.reset_password_token = null;
+        await this.studentDAO.updateStudent(student);
       }
     } catch (err) {
       throw new AppError(

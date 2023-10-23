@@ -77,10 +77,23 @@ class TopicDAO {
       JOIN instructors i ON c.instructor_id = i.id 
       JOIN pricing_plans p ON t.pricing_plan_id = p.id
       `
-
       const topics = await connection.query(sql);
       connection.release();
       return topics.rows[0].result;
+    } catch (err) {
+      if (connection) connection.release();
+      throw new AppError((err as Error).message, 500);
+    }
+  }
+
+  public async countLessonTopics(lessonId: string): Promise<number>{
+    let connection: PoolClient | null = null;
+    try {
+      connection = await db.connect();
+      const sql = `SELECT COUNT(*) from topics WHERE lesson_id = $1`
+      const countTopics = await connection.query(sql, [lessonId]);
+      connection.release();
+      return parseInt(countTopics.rows[0].count);;
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);

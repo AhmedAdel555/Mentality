@@ -2,7 +2,7 @@ import { NextFunction, Router, Request, Response } from "express";
 import CoursesContoller from "../../courses/courses.controller";
 import coursesRegistrationsController from "../../coursesRegistrations/coursesRegistrations.controller";
 import lessonController from "../../lessons/lesson.controller";
-// import topicsContoller from "../../topics/topics.contoller";
+import topicsContoller from "../../topics/topics.contoller";
 import { body, param } from "express-validator";
 import isAuth from "../../middlewares/isAuth";
 import allowTo from "../../middlewares/allowTo";
@@ -11,7 +11,7 @@ import Levels from "../../courses/levels.enum";
 import validateInput from "../../middlewares/validateInput";
 import validateFileUpload from "../../middlewares/validateFileUpload";
 import Roles from "../../utils/roles.enum";
-// import Topics from "../../topics/topics.enum";
+import Topics from "../../topics/topics.enum";
 const routes = Router();
 
 routes
@@ -165,90 +165,155 @@ routes
   );
 
 // topics routes
-// routes
-//   .route("/:course_id/lessons/:lesson_id/topics")
-//   .post(
-//     [
-//       param("course_id").isUUID(),
-//       param("lesson_id").isUUID(),
-//       body("title").trim().notEmpty(),
-//       body("description").trim().notEmpty(),
-//       body("points").custom((value, { req }) => {
-//         return typeof value === "number";
-//       }),
-//       body("pricing_plan_id").custom((value, { req }) => {
-//         return typeof value === "number";
-//       }),
-//       body("content_url").trim().notEmpty(),
-//       body("topic_type").isIn([Object.values(Topics)]),
-//     ],
-//     validateInput,
-//     isAuth,
-//     allowTo(Roles.Instructor),
-//     (req: Request, res: Response, next: NextFunction) => {
-//       topicsContoller.addTopic(req, res, next);
-//     }
-//   )
-//   .get(
-//     [param("course_id").isUUID(), param("lesson_id").isUUID()],
-//     validateInput,
-//     (req: Request, res: Response, next: NextFunction) => {
-//       topicsContoller.getAllTopics(req, res, next);
-//     }
-//   );
+routes
+  .route("/:course_id/lessons/:lesson_id/topics")
+  .post(
+    [
+      param("course_id").isUUID(),
+      param("lesson_id").isUUID(),
+      body("title").trim().notEmpty(),
+      body("description").trim().notEmpty(),
+      body("points").custom((value, { req }) => {
+        return typeof value === "number";
+      }),
+      body("pricing_plan_id").custom((value, { req }) => {
+        return typeof value === "number";
+      }),
+      body("content_url").trim().notEmpty(),
+      body("topic_type").isIn([Object.values(Topics)]),
+    ],
+    validateInput,
+    isAuth,
+    allowTo(Roles.Instructor),
+    (req: Request, res: Response, next: NextFunction) => {
+      topicsContoller.addTopic(req, res, next);
+    }
+  )
+  .get(
+    [param("course_id").isUUID(), param("lesson_id").isUUID()],
+    validateInput,
+    (req: Request, res: Response, next: NextFunction) => {
 
-// routes
-//   .route("/:course_id/lessons/:lesson_id/topics/:topic_id")
-//   .get(
-//     [
-//       param("course_id").isUUID(),
-//       param("lesson_id").isUUID(),
-//       param("topic_id").isUUID(),
-//     ],
-//     validateInput,
-//     isAuth,
-//     (req: Request, res: Response, next: NextFunction) => {
-//       topicsContoller.getTopic(req, res, next);
-//     }
-//   )
-//   .patch(
-//     [
-//       param("course_id").isUUID(),
-//       param("lesson_id").isUUID(),
-//       param("topic_id").isUUID(),
-//       body("title").trim().notEmpty(),
-//       body("description").trim().notEmpty(),
-//       body("topic_order").custom((value, { req }) => {
-//         return typeof value === "number";
-//       }),
-//       body("points").custom((value, { req }) => {
-//         return typeof value === "number";
-//       }),
-//       body("pricing_plan_id").custom((value, { req }) => {
-//         return typeof value === "number";
-//       }),
-//       body("content_url").trim().notEmpty(),
-//       body("topic_type").isIn([Object.values(Topics)]),
-//     ],
-//     validateInput,
-//     isAuth,
-//     allowTo(Roles.Instructor),
-//     (req: Request, res: Response, next: NextFunction) => {
-//       topicsContoller.updateTopic(req, res, next);
-//     }
-//   )
-//   .delete(
-//     [
-//       param("course_id").isUUID(),
-//       param("lesson_id").isUUID(),
-//       param("topic_id").isUUID(),
-//     ],
-//     validateInput,
-//     isAuth,
-//     allowTo(Roles.Instructor),
-//     (req: Request, res: Response, next: NextFunction) => {
-//       topicsContoller.deleteTopic(req, res, next);
-//     }
-//   );
+    }
+  );
+
+routes
+  .route("/:course_id/lessons/:lesson_id/topics/:topic_id")
+  .get(
+    [
+      param("course_id").isUUID(),
+      param("lesson_id").isUUID(),
+      param("topic_id").isUUID(),
+    ],
+    validateInput,
+    isAuth,
+    (req: Request, res: Response, next: NextFunction) => {
+
+    }
+  )
+  .patch(
+    [
+      param("course_id").isUUID(),
+      param("lesson_id").isUUID(),
+      param("topic_id").isUUID(),
+      body("title").trim().notEmpty(),
+      body("description").trim().notEmpty(),
+      body("topic_order").custom((value, { req }) => {
+        return typeof value === "number";
+      }),
+      body("points").custom((value, { req }) => {
+        return typeof value === "number";
+      }),
+      body("pricing_plan_id").custom((value, { req }) => {
+        return typeof value === "number";
+      }),
+      body("content_url").trim().notEmpty(),
+      body("topic_type").isIn([Object.values(Topics)]),
+    ],
+    validateInput,
+    isAuth,
+    allowTo(Roles.Instructor),
+    (req: Request, res: Response, next: NextFunction) => {
+      topicsContoller.updateTopic(req, res, next);
+    }
+  )
+  .delete(
+    [
+      param("course_id").isUUID(),
+      param("lesson_id").isUUID(),
+      param("topic_id").isUUID(),
+    ],
+    validateInput,
+    isAuth,
+    allowTo(Roles.Instructor),
+    (req: Request, res: Response, next: NextFunction) => {
+      topicsContoller.deleteTopic(req, res, next);
+    }
+  );
+
+routes.patch(
+  "/:course_id/lessons/:lesson_id/topics/:topic_id/finished-tutorial",
+  [
+    param("course_id").isUUID(),
+    param("lesson_id").isUUID(),
+    param("topic_id").isUUID(),
+  ],
+  validateInput,
+  isAuth,
+  allowTo(Roles.Student),
+  (req: Request, res: Response, next: NextFunction) => {
+    
+  }
+)
+
+routes.patch(
+  "/:course_id/lessons/:lesson_id/topics/:topic_id/submit-task",
+  [
+    param("course_id").isUUID(),
+    param("lesson_id").isUUID(),
+    param("topic_id").isUUID(),
+    body("task_answer").trim().notEmpty()
+  ],
+  validateInput,
+  isAuth,
+  allowTo(Roles.Student),
+  (req: Request, res: Response, next: NextFunction) => {
+    
+  }
+)
+
+routes.get(
+  "/:course_id/lessons/:lesson_id/topics/:topic_id/tasks-submissions",
+  [
+    param("course_id").isUUID(),
+    param("lesson_id").isUUID(),
+    param("topic_id").isUUID(),
+  ],
+  validateInput,
+  isAuth,
+  allowTo(Roles.Instructor),
+  (req: Request, res: Response, next: NextFunction) => {
+    
+  }
+)
+
+routes.patch(
+  "/:course_id/lessons/:lesson_id/topics/:topic_id/grade",
+  [
+    param("course_id").isUUID(),
+    param("lesson_id").isUUID(),
+    param("topic_id").isUUID(),
+    body("student_id").isUUID(),
+    body("grade").custom((value, { req }) => {
+      return typeof value === "number";
+    }),
+  ],
+  validateInput,
+  isAuth,
+  allowTo(Roles.Instructor),
+  (req: Request, res: Response, next: NextFunction) => {
+    
+  }
+)
 
 export default routes;
