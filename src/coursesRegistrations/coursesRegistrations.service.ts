@@ -2,7 +2,7 @@ import CoursesDAO from "../courses/courses.dao";
 import ResponseCourseInfoDTO from "../courses/dtos/response-course-info-dto";
 import ResponeStudentInfoDTO from "../user/student/dtos/respone-student-info-dto";
 import StudentDAO from "../user/student/student.dao";
-import StudentProgressDAO from "../userProgress/studentProgress.dao";
+import StudentProgressDAO from "../studentProgress/studentProgress.dao";
 import AppError from "../utils/appError";
 import CoursesRegistrationsDAO from "./coursesRegistrations.dao";
 import CoursesRegistrationsModel from "./coursesRegistrations.model";

@@ -27,7 +27,7 @@ class TopicDAO {
   }
 
 
-  public async getAllTopics(): Promise<TopicModel[]> {
+  public async getAllLessonTopics(LessonId:string): Promise<TopicModel[]> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
@@ -76,9 +76,11 @@ class TopicDAO {
       JOIN courses c ON l.course_id = c.id
       JOIN instructors i ON c.instructor_id = i.id 
       JOIN pricing_plans p ON t.pricing_plan_id = p.id
+      WHERE t.lesson_id = $1
       `
-      const topics = await connection.query(sql);
+      const topics = await connection.query(sql, [LessonId]);
       connection.release();
+      
       return topics.rows[0].result;
     } catch (err) {
       if (connection) connection.release();

@@ -1,9 +1,7 @@
-import CoursesDAO from "../courses/courses.dao";
 import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 import LessonDAO from "../lessons/lesson.dao";
 import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
 import SubscriptionDAO from "../subscription/subscription.dao";
-import StudentDAO from "../user/student/student.dao";
 import AppError from "../utils/appError";
 import Roles from "../utils/roles.enum";
 import AddTopicRequestDTO from "./dtos/add-topic-request-dto";
@@ -19,10 +17,8 @@ import TopicDAO from "./topics.dao";
 class TopicServices implements ITopicServices {
   constructor(
     private readonly topicDAO: TopicDAO,
-    private readonly courseDAO: CoursesDAO,
     private readonly lessonDAO: LessonDAO,
     private readonly pricingPlanDAO: PricingPlanDAO,
-    private readonly studentDAO: StudentDAO,
     private readonly courseRegistrationDAO: CoursesRegistrationsDAO,
     private readonly subscriptionDAO: SubscriptionDAO
   ) {}
@@ -66,90 +62,70 @@ class TopicServices implements ITopicServices {
     }
   }
 
-  // public async getAllLessonTopics(
-  //   lesson_id: string
-  // ): Promise<ResponseAllTopicsInfoDTO[]> {
-  //   try {
-  //     const lesson = await this.lessonDAO.getlessonById(lesson_id);
-  //     if (!lesson) throw new AppError("lesson not found", 404);
-  //     const topics = await this.topicDAO.getAllTopics();
-  //     const lessonTopics = topics.filter((topicObject, index) => {
-  //       return topicObject.lesson.id === lesson_id;
-  //     });
-  //     const lessonTopicsResponse: ResponseAllTopicsInfoDTO[] = lessonTopics.map(
-  //       (topic, index) => {
-  //         return {
-  //           id: topic.id,
-  //           title: topic.title,
-  //           topic_order: topic.topic_order,
-  //           points: topic.points,
-  //           pricing_plan: topic.pricing_plan,
-  //           topic_type: topic.topic_type,
-  //         };
-  //       }
-  //     );
-  //     return lessonTopicsResponse;
-  //   } catch (err) {
-  //     throw new AppError(
-  //       (err as AppError).message,
-  //       (err as AppError).statusCode
-  //     );
-  //   }
-  // }
+  public async getAllLessonTopics(
+    lesson_id: string
+  ): Promise<ResponseAllTopicsInfoDTO[]> {
+    try {
+      const lesson = await this.lessonDAO.getlessonById(lesson_id);
+      if (!lesson) throw new AppError("lesson not found", 404);
 
-  // public async getTopic(
-  //   getTopicInfoRequestDTO: GetTopicInfoRequestDTO
-  // ): Promise<ResponseTopicInfoDTO> {
-  //   try {
-  //     const topic = await this.topicDAO.getTopicById(
-  //       getTopicInfoRequestDTO.topic_id
-  //     );
-  //     if (!topic) throw new AppError("topic not found", 404);
-  //     if (getTopicInfoRequestDTO.user_role === Roles.Student) {
-  //       const student = await this.studentDAO.getStudentById(
-  //         getTopicInfoRequestDTO.user_id
-  //       );
-  //       if (!student) throw new AppError("user not found", 404);
-  //       const courseRegistrations =
-  //         await this.courseRegistrationDAO.getAllCourseRegistrations();
-  //       const studentCourses = courseRegistrations.filter(
-  //         (courseRegistration, index) => {
-  //           return (
-  //             courseRegistration.student.id ===
-  //               getTopicInfoRequestDTO.user_id &&
-  //             courseRegistration.course.id === getTopicInfoRequestDTO.course_id
-  //           );
-  //         }
-  //       );
-  //       if (studentCourses.length === 0)
-  //         throw new AppError("you must enroll to the course first", 403);
-  //       const subscriptionsFromDB =
-  //         await this.subscriptionDAO.getAllSubscriptions();
-  //       const subcriptions = subscriptionsFromDB.filter(
-  //         (subcription, index) => {
-  //           return subcription.student.id === getTopicInfoRequestDTO.user_id;
-  //         }
-  //       );
-  //       if (subcriptions[0].pricing_plan.price < topic.pricing_plan.price)
-  //         throw new AppError("upgrade to see this lesson", 403);
-  //     }
-  //     return {
-  //       id: topic.id,
-  //       title: topic.title,
-  //       topic_order: topic.topic_order,
-  //       points: topic.points,
-  //       pricing_plan: topic.pricing_plan,
-  //       topic_type: topic.topic_type,
-  //       description: topic.description,
-  //       content_url: topic.content_url,
-  //     };
-  //   } catch (err) {
-  //     throw new AppError(
-  //       (err as AppError).message,
-  //       (err as AppError).statusCode
-  //     );
-  //   }
-  // }
+      const topics = await this.topicDAO.getAllLessonTopics(lesson.id);
+
+      const lessonTopicsResponse: ResponseAllTopicsInfoDTO[] = topics.map(
+        (topic, index) => {
+          return {
+            id: topic.id,
+            title: topic.title,
+            topic_order: topic.topic_order,
+            points: topic.points,
+            pricing_plan: topic.pricing_plan,
+            topic_type: topic.topic_type,
+          };
+        }
+      );
+      return lessonTopicsResponse;
+
+    } catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
+    }
+  }
+
+  public async getTopic(
+    getTopicInfoRequestDTO: GetTopicInfoRequestDTO
+  ): Promise<ResponseTopicInfoDTO> {
+    try {
+      const topic = await this.topicDAO.getTopicById(getTopicInfoRequestDTO.topic_id);
+      if(!topic) throw new AppError("topic not found", 404);
+      if(getTopicInfoRequestDTO.user_role === Roles.Student){
+        const studentCourses = await this.courseRegistrationDAO.getCourseRegistrationsForStudent(getTopicInfoRequestDTO.user_id);
+        let registered: boolean = false;
+        for(let i = 0 ; i < studentCourses.length ; i++){
+          if(studentCourses[i].course.id === topic.lesson.course.id){
+            registered = true;
+          }
+        }
+        if(!registered) throw new AppError("you have to enroll in the course first", 403);
+        const currentStudentPlan = (await this.subscriptionDAO.getStudentSubscriptions(getTopicInfoRequestDTO.user_id))[0].pricing_plan;
+        if(topic.pricing_plan.price > currentStudentPlan.price){
+          throw new AppError("upgrade to access this topic", 403);
+        }
+      }
+      return { 
+        id: topic.id, title: topic.title, topic_order: topic.topic_order, points: topic.points,
+        pricing_plan: topic.pricing_plan, topic_type: topic.topic_type, 
+        description: topic.description, content_url: topic.content_url
+      };
+
+    } catch (err) {
+      throw new AppError(
+        (err as AppError).message,
+        (err as AppError).statusCode
+      );
+    }
+  }
 
   public async updateTopic(
     updateTopicRequestDTO: UpdateTopicRequestDTO

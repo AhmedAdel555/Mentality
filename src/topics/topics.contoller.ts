@@ -20,23 +20,23 @@ class TopicsController {
     }
   }
 
-  // public async getAllTopics(req: Request, res: Response, next: NextFunction){
-  //   try{
-  //     const topics = await this.topicService.getAllLessonTopics(req.params.lesson_id)
-  //     res.status(201).json({status: "success", data: topics})
-  //   }catch(error){
-  //     next(error);
-  //   }
-  // }
+  public async getAllLessonTopics(req: Request, res: Response, next: NextFunction){
+    try{
+      const topics = await this.topicService.getAllLessonTopics(req.params.lesson_id)
+      res.status(201).json({status: "success", data: topics})
+    }catch(error){
+      next(error);
+    }
+  }
 
-  // public async getTopic(req: Request, res: Response, next: NextFunction){
-  //   try{
-  //     const topic = await this.topicService.getTopic({...req.params, ...req.body})
-  //     res.status(201).json({status: "success", data: topic})
-  //   }catch(error){
-  //     next(error);
-  //   }
-  // }
+  public async getTopic(req: Request, res: Response, next: NextFunction){
+    try{
+      const topic = await this.topicService.getTopic({...req.params, ...req.body})
+      res.status(201).json({status: "success", data: topic})
+    }catch(error){
+      next(error);
+    }
+  }
 
   public async updateTopic(req: Request, res: Response, next: NextFunction){
     try{
@@ -59,10 +59,8 @@ class TopicsController {
 
 export default new TopicsController(new TopicServices(
   new TopicDAO(),
-  new CoursesDAO(),
   new LessonDAO(),
   new PricingPlanDAO(),
-  new StudentDAO(),
   new CoursesRegistrationsDAO(),
   new SubscriptionDAO()
 ));

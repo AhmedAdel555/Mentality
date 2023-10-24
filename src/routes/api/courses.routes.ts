@@ -1,6 +1,7 @@
 import { NextFunction, Router, Request, Response } from "express";
 import CoursesContoller from "../../courses/courses.controller";
 import coursesRegistrationsController from "../../coursesRegistrations/coursesRegistrations.controller";
+import studentProgressController from "../../studentProgress/studentProgress.controller";
 import lessonController from "../../lessons/lesson.controller";
 import topicsContoller from "../../topics/topics.contoller";
 import { body, param } from "express-validator";
@@ -102,7 +103,7 @@ routes.get(
   validateInput,
   isAuth,
   (req: Request, res: Response, next: NextFunction) => {
-    coursesRegistrationsController.getCourseStudents(req, res, next)
+    coursesRegistrationsController.getCourseStudents(req, res, next);
   }
 );
 
@@ -117,10 +118,7 @@ routes
     }
   )
   .post(
-    [
-      body("title").trim().notEmpty(), 
-      param("course_id").isUUID()
-    ],
+    [body("title").trim().notEmpty(), param("course_id").isUUID()],
     validateInput,
     isAuth,
     allowTo(Roles.Instructor),
@@ -193,7 +191,7 @@ routes
     [param("course_id").isUUID(), param("lesson_id").isUUID()],
     validateInput,
     (req: Request, res: Response, next: NextFunction) => {
-
+      topicsContoller.getAllLessonTopics(req, res, next);
     }
   );
 
@@ -208,7 +206,7 @@ routes
     validateInput,
     isAuth,
     (req: Request, res: Response, next: NextFunction) => {
-
+      topicsContoller.getTopic(req, res, next);
     }
   )
   .patch(
@@ -251,51 +249,48 @@ routes
     }
   );
 
-routes.patch(
-  "/:course_id/lessons/:lesson_id/topics/:topic_id/finished-tutorial",
+routes.get(
+  "/:course_id/lessons/:lesson_id/topics/progress",
   [
     param("course_id").isUUID(),
     param("lesson_id").isUUID(),
     param("topic_id").isUUID(),
   ],
-  validateInput,
   isAuth,
   allowTo(Roles.Student),
   (req: Request, res: Response, next: NextFunction) => {
-    
+    studentProgressController.getStudentLessonProgress(req, res, next);
   }
-)
+);
 
 routes.patch(
-  "/:course_id/lessons/:lesson_id/topics/:topic_id/submit-task",
+  "/:course_id/lessons/:lesson_id/topics/:topic_id/finished-topic",
   [
     param("course_id").isUUID(),
     param("lesson_id").isUUID(),
     param("topic_id").isUUID(),
-    body("task_answer").trim().notEmpty()
+    body("task_solution").custom((value, { req }) => {
+      return value === null || typeof value === "string";
+    }),
   ],
   validateInput,
   isAuth,
   allowTo(Roles.Student),
   (req: Request, res: Response, next: NextFunction) => {
-    
+    studentProgressController.finishTopic(req, res, next);
   }
-)
+);
 
 routes.get(
-  "/:course_id/lessons/:lesson_id/topics/:topic_id/tasks-submissions",
-  [
-    param("course_id").isUUID(),
-    param("lesson_id").isUUID(),
-    param("topic_id").isUUID(),
-  ],
+  "/:course_id/tasks-submissions",
+  [param("course_id").isUUID()],
   validateInput,
   isAuth,
   allowTo(Roles.Instructor),
   (req: Request, res: Response, next: NextFunction) => {
-    
+    studentProgressController.getAllCourseTasksSubmissions(req, res, next);
   }
-)
+);
 
 routes.patch(
   "/:course_id/lessons/:lesson_id/topics/:topic_id/grade",
@@ -312,8 +307,8 @@ routes.patch(
   isAuth,
   allowTo(Roles.Instructor),
   (req: Request, res: Response, next: NextFunction) => {
-    
+    studentProgressController.gradeTask(req, res, next);
   }
-)
+);
 
 export default routes;

@@ -72,6 +72,7 @@ class StudentService implements IStudentService {
       );
     }
   }
+
   public async getStudent(id: string): Promise<ResponeStudentInfoDTO> {
     try {
       const studentFromDB = await this.studentDAO.getStudentById(id);
@@ -94,6 +95,7 @@ class StudentService implements IStudentService {
       );
     }
   }
+
   public async updateStudent(
     updateStudentInfoDTO: UpdateStudentInfoDTO
   ): Promise<void> {
@@ -116,6 +118,7 @@ class StudentService implements IStudentService {
       );
     }
   }
+
   public async resetPassword(
     resetPasswordRequestDTO: ResetPasswordRequestDTO
   ): Promise<void> {
@@ -147,6 +150,7 @@ class StudentService implements IStudentService {
       );
     }
   }
+  
   public async changeProfilePicture(
     changeProfilePictureRequsetDTO: ChangeProfilePictureRequsetDTO
   ): Promise<string> {
