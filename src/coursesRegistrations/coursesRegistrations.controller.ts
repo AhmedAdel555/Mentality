@@ -1,6 +1,6 @@
 import CoursesDAO from "../courses/courses.dao";
 import StudentDAO from "../user/student/student.dao";
-import StudentProgressDAO from "../userProgress/studentProgress.dao";
+import StudentProgressDAO from "../studentProgress/studentProgress.dao";
 import CoursesRegistrationsDAO from "./coursesRegistrations.dao";
 import CourseRegistrationService from "./coursesRegistrations.service";
 import { Request, Response, NextFunction } from "express";

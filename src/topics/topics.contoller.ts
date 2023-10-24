@@ -1,10 +1,8 @@
 import { Request, Response,  NextFunction } from "express";
 import TopicServices from "./topics.service";
 import TopicDAO from "./topics.dao";
-import CoursesDAO from "../courses/courses.dao";
 import LessonDAO from "../lessons/lesson.dao";
 import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
-import StudentDAO from "../user/student/student.dao";
 import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 import SubscriptionDAO from "../subscription/subscription.dao";
 
