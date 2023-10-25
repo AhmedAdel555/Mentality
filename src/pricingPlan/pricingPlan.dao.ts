@@ -76,7 +76,7 @@ class PricingPlanDAO {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `DELETE FROM pricing_plans WHERE id = $1 RETURNING *;`;
+      const sql = `DELETE FROM pricing_plans WHERE id = $1;`;
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {

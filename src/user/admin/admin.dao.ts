@@ -69,11 +69,10 @@ class AdminDAO {
     try {
       connection = await db.connect();
       const sql = `UPDATE admins
-        SET email = $1, user_name = $2, phone_number = $3, address = $4,
-        password = $5, profile_picture = $6, reset_password_token = $7
-        WHERE id = $8;`;
+        SET user_name = $1, phone_number = $2, address = $3,
+        password = $4, profile_picture = $5, reset_password_token = $6
+        WHERE id = $7;`;
       await connection.query(sql, [
-        admin.email,
         admin.user_name,
         admin.phone_number,
         admin.address,

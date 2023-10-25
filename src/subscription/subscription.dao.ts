@@ -5,6 +5,32 @@ import AppError from "../utils/appError";
 
 class SubscriptionDAO{
 
+  private readonly map_subscription_object = 
+  `jsonb_agg(
+    jsonb_build_object(
+      'id', sp.id,
+      'date', sp.date,
+      'student', jsonb_build_object(
+        'id', s.id,
+        'user_name', s.user_name,
+        'email', s.email,
+        'password', s.password,
+        'profile_picture', s.profile_picture,
+        'phone_number', s.phone_number,
+        'address', s.address,
+        'reset_password_token', s.reset_password_token,
+        'points', s.points
+      ),
+      'pricing_plan',  jsonb_build_object(
+          'id', p.id,
+          'plan_name', p.plan_name,
+          'price', p.price,
+          'attributes', p.attributes
+      )
+    )
+  ) AS result 
+  `
+
   public async createSubscription(subscription: SubscriptionModel): Promise<void>{
     let connection: PoolClient | null = null;
     try {
@@ -28,27 +54,7 @@ class SubscriptionDAO{
     try {
       connection = await db.connect();
       const sql = `
-        SELECT jsonb_agg(jsonb_build_object(
-          'id', sp.id,
-          'date', sp.date,
-          'student', jsonb_build_object(
-            'id', s.id,
-            'user_name', s.user_name,
-            'email', s.email,
-            'password', s.password,
-            'profile_picture', s.profile_picture,
-            'phone_number', s.phone_number,
-            'address', s.address,
-            'reset_password_token', s.reset_password_token,
-            'points', s.points
-           ),
-           'pricing_plan',  jsonb_build_object(
-              'id', p.id,
-              'plan_name', p.plan_name,
-              'price', p.price,
-              'attributes', p.attributes
-           )
-        )) AS result 
+        SELECT ${this.map_subscription_object}
         FROM subscriptions sp JOIN students s ON sp.student_id = s.id
         JOIN pricing_plans p ON sp.pricing_plan_id = p.id
         ORDER BY sp.date;
@@ -67,27 +73,7 @@ class SubscriptionDAO{
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `    SELECT jsonb_agg(jsonb_build_object(
-        'id', sp.id,
-        'date', sp.date,
-        'student', jsonb_build_object(
-          'id', s.id,
-          'user_name', s.user_name,
-          'email', s.email,
-          'password', s.password,
-          'profile_picture', s.profile_picture,
-          'phone_number', s.phone_number,
-          'address', s.address,
-          'reset_password_token', s.reset_password_token,
-          'points', s.points
-         ),
-         'pricing_plan',  jsonb_build_object(
-            'id', p.id,
-            'plan_name', p.plan_name,
-            'price', p.price,
-            'attributes', p.attributes
-         )
-      )) AS result 
+      const sql = `SELECT ${this.map_subscription_object}
       FROM subscriptions sp JOIN students s ON sp.student_id = s.id
       JOIN pricing_plans p ON sp.pricing_plan_id = p.id
       WHERE sp.id = $1;`;
@@ -105,27 +91,7 @@ class SubscriptionDAO{
     try {
       connection = await db.connect();
       const sql = `
-        SELECT jsonb_agg(jsonb_build_object(
-          'id', sp.id,
-          'date', sp.date,
-          'student', jsonb_build_object(
-            'id', s.id,
-            'user_name', s.user_name,
-            'email', s.email,
-            'password', s.password,
-            'profile_picture', s.profile_picture,
-            'phone_number', s.phone_number,
-            'address', s.address,
-            'reset_password_token', s.reset_password_token,
-            'points', s.points
-           ),
-           'pricing_plan',  jsonb_build_object(
-              'id', p.id,
-              'plan_name', p.plan_name,
-              'price', p.price,
-              'attributes', p.attributes
-           )
-        )) AS result 
+        SELECT ${this.map_subscription_object}
         FROM subscriptions sp JOIN students s ON sp.student_id = s.id
         JOIN pricing_plans p ON sp.pricing_plan_id = p.id
         WHERE sp.student_id = $1

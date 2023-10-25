@@ -3,6 +3,52 @@ import db from "../utils/databaseConfig";
 import AppError from "../utils/appError";
 import TopicModel from "./topic.model";
 class TopicDAO {
+
+  private readonly map_topic_object = 
+  `jsonb_agg(
+    jsonb_build_object(
+      'id', t.id,
+      'title', t.title,
+      'description', t.description,
+      'topic_order', t.topic_order,
+      'points', t.points,
+      'content_url', t.content_url,
+      'topic_type', t.topic_type,
+      'lesson', jsonb_build_object(
+        'id', l.id,
+        'title', l.title,
+        'lesson_order', l.lesson_order,
+        'course', jsonb_build_object(
+          'id', c.id,
+          'title', c.title,
+          'description', c.description,
+          'requirements', c.requirements,
+          'picture', c.picture,
+          'level', c.level,
+          'instructor', jsonb_build_object(
+            'id', i.id,
+            'user_name', i.user_name,
+            'email', i.email,
+            'password', i.password,
+            'profile_picture', i.profile_picture,
+            'phone_number', i.phone_number,
+            'address', i.address,
+            'reset_password_token', i.reset_password_token,
+            'title', i.title,
+            'description', i.description
+          )
+        )
+      ),
+      'pricing_plan', jsonb_build_object(
+        'id', p.id,
+        'plan_name', p.plan_name,
+        'price', p.price,
+        'attributes', p.attributes
+      )
+    )
+  ) AS result 
+  `
+
   public async createTopic(topic: TopicModel): Promise<void> {
     let connection: PoolClient | null = null;
     try {
@@ -26,52 +72,12 @@ class TopicDAO {
     }
   }
 
-
   public async getAllLessonTopics(LessonId:string): Promise<TopicModel[]> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `
-      SELECT jsonb_agg(jsonb_build_object(
-        'id', t.id,
-        'title', t.title,
-        'description', t.description,
-        'topic_order', t.topic_order,
-        'points', t.points,
-        'content_url', t.content_url,
-        'topic_type', t.topic_type,
-        'lesson', jsonb_build_object(
-          'id', l.id,
-          'title', l.title,
-          'lesson_order', l.lesson_order,
-          'course', jsonb_build_object(
-            'id', c.id,
-            'title', c.title,
-            'description', c.description,
-            'requirements', c.requirements,
-            'picture', c.requirements,
-            'level', c.level,
-            'instructor', jsonb_build_object(
-              'id', i.id,
-              'user_name', i.user_name,
-              'email', i.email,
-              'password', i.password,
-              'profile_picture', i.profile_picture,
-              'phone_number', i.phone_number,
-              'address', i.address,
-              'reset_password_token', i.reset_password_token,
-              'title', i.title,
-              'description', i.description
-            )
-          )
-        ),
-        'pricing_plan',  jsonb_build_object(
-          'id', p.id,
-          'plan_name', p.plan_name,
-          'price', p.price,
-          'attributes', p.attributes
-       )
-      )) AS result 
+      SELECT ${this.map_topic_object}
       FROM topics t JOIN lessons l ON t.lesson_id = l.id 
       JOIN courses c ON l.course_id = c.id
       JOIN instructors i ON c.instructor_id = i.id 
@@ -80,7 +86,6 @@ class TopicDAO {
       `
       const topics = await connection.query(sql, [LessonId]);
       connection.release();
-      
       return topics.rows[0].result;
     } catch (err) {
       if (connection) connection.release();
@@ -107,46 +112,7 @@ class TopicDAO {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `  SELECT jsonb_agg(jsonb_build_object(
-        'id', t.id,
-        'title', t.title,
-        'description', t.description,
-        'topic_order', t.topic_order,
-        'points', t.points,
-        'content_url', t.content_url,
-        'topic_type', t.topic_type,
-        'lesson', jsonb_build_object(
-          'id', l.id,
-          'title', l.title,
-          'lesson_order', l.lesson_order,
-          'course', jsonb_build_object(
-            'id', c.id,
-            'title', c.title,
-            'description', c.description,
-            'requirements', c.requirements,
-            'picture', c.requirements,
-            'level', c.level,
-            'instructor', jsonb_build_object(
-              'id', i.id,
-              'user_name', i.user_name,
-              'email', i.email,
-              'password', i.password,
-              'profile_picture', i.profile_picture,
-              'phone_number', i.phone_number,
-              'address', i.address,
-              'reset_password_token', i.reset_password_token,
-              'title', i.title,
-              'description', i.description
-            )
-          )
-        ),
-        'pricing_plan',  jsonb_build_object(
-          'id', p.id,
-          'plan_name', p.plan_name,
-          'price', p.price,
-          'attributes', p.attributes
-       )
-      )) AS result 
+      const sql = `  SELECT ${this.map_topic_object}
       FROM topics t JOIN lessons l ON t.lesson_id = l.id 
       JOIN courses c ON l.course_id = c.id
       JOIN instructors i ON c.instructor_id = i.id 
@@ -161,12 +127,10 @@ class TopicDAO {
     }
   }
 
-  // update course
   public async updateTopic(topic: TopicModel): Promise<void> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-
       const sql = `UPDATE topics
                   SET  title = $1, description = $2, topic_order = $3, 
                   points = $4, content_url = $5, topic_type = $6,

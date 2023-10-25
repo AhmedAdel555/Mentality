@@ -3,6 +3,30 @@ import db from "../utils/databaseConfig";
 import CourseModel from "./course.model";
 import AppError from "../utils/appError";
 class CoursesDAO {
+  private readonly map_course_object: string = `
+  jsonb_agg(
+    jsonb_build_object(
+      'id', c.id,
+      'title', c.title,
+      'description', c.description,
+      'requirements', c.requirements,
+      'picture', c.picture,
+      'level', c.level,
+      'instructor', jsonb_build_object(
+        'id', i.id,
+        'user_name', i.user_name,
+        'email', i.email,
+        'password', i.password,
+        'profile_picture', i.profile_picture,
+        'phone_number', i.phone_number,
+        'address', i.address,
+        'reset_password_token', i.reset_password_token,
+        'title', i.title,
+        'description', i.description
+      )
+    )
+  ) AS result
+  `;
 
   public async createCourse(course: CourseModel): Promise<void> {
     let connection: PoolClient | null = null;
@@ -25,35 +49,15 @@ class CoursesDAO {
     }
   }
 
-
   public async getAllCourses(): Promise<CourseModel[]> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `
-      SELECT jsonb_agg(jsonb_build_object(
-        'id', c.id,
-        'title', c.title,
-        'description', c.description,
-        'requirements', c.requirements,
-        'picture', c.requirements,
-        'level', c.level,
-        'instructor', jsonb_build_object(
-          'id', i.id,
-          'user_name', i.user_name,
-          'email', i.email,
-          'password', i.password,
-          'profile_picture', i.profile_picture,
-          'phone_number', i.phone_number,
-          'address', i.address,
-          'reset_password_token', i.reset_password_token,
-          'title', i.title,
-          'description', i.description
-        )
-      )) AS result
+      SELECT ${this.map_course_object}
       FROM courses c 
       JOIN instructors i ON c.instructor_id = i.id
-      `
+      `;
       const courses = await connection.query(sql);
       connection.release();
       return courses.rows[0].result;
@@ -63,35 +67,18 @@ class CoursesDAO {
     }
   }
 
-  public async getInstructorCourses(instructorId: string): Promise<CourseModel[]> {
+  public async getInstructorCourses(
+    instructorId: string
+  ): Promise<CourseModel[]> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `
-      SELECT jsonb_agg(jsonb_build_object(
-        'id', c.id,
-        'title', c.title,
-        'description', c.description,
-        'requirements', c.requirements,
-        'picture', c.requirements,
-        'level', c.level,
-        'instructor', jsonb_build_object(
-          'id', i.id,
-          'user_name', i.user_name,
-          'email', i.email,
-          'password', i.password,
-          'profile_picture', i.profile_picture,
-          'phone_number', i.phone_number,
-          'address', i.address,
-          'reset_password_token', i.reset_password_token,
-          'title', i.title,
-          'description', i.description
-        )
-      )) AS result
+      SELECT ${this.map_course_object}
       FROM courses c 
       JOIN instructors i ON c.instructor_id = i.id
       WHERE c.instructor_id = $1;
-      `
+      `;
       const instructorCourses = await connection.query(sql, [instructorId]);
       connection.release();
       return instructorCourses.rows[0].result;
@@ -106,26 +93,7 @@ class CoursesDAO {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `SELECT jsonb_agg(jsonb_build_object(
-        'id', c.id,
-        'title', c.title,
-        'description', c.description,
-        'requirements', c.requirements,
-        'picture', c.requirements,
-        'level', c.level,
-        'instructor', jsonb_build_object(
-          'id', i.id,
-          'user_name', i.user_name,
-          'email', i.email,
-          'password', i.password,
-          'profile_picture', i.profile_picture,
-          'phone_number', i.phone_number,
-          'address', i.address,
-          'reset_password_token', i.reset_password_token,
-          'title', i.title,
-          'description', i.description
-        )
-      )) AS result
+      const sql = `SELECT ${this.map_course_object}
       FROM courses c 
       JOIN instructors i ON c.instructor_id = i.id
       where c.id = $1;`;
