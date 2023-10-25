@@ -9,10 +9,10 @@ class StudentProgressModel {
   public grade: number
   public solution: string | null
 
-  constructor(student: StudentModel, topic: TopicModel, status: StatusProgress) {
+  constructor(student: StudentModel, topic: TopicModel) {
     this.student = student;
     this.topic = topic;
-    this.status = status;
+    this.status = StatusProgress.NOTFINISHED;
     this.grade = 0;
     this.solution = null;
   }

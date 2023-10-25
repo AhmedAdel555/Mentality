@@ -45,7 +45,6 @@ class CoursesService implements ICoursesServices {
   public async getAllCourses(): Promise<ResponseCourseInfoDTO[]> {
     try {
       const coursesFromDB = await this.coursesDAO.getAllCourses();
-      console.log(coursesFromDB);
       const courses: ResponseCourseInfoDTO[] = coursesFromDB.map((course, index) => {
         return {
           id: course.id, 
