@@ -121,7 +121,7 @@ class AdminService implements IAdminService {
           admin.password
         )
       ) {
-        throw new AppError("password is incorrect", 401);
+        throw new AppError("password is incorrect", 400);
       }
       // encript new password
       admin.password = bcrypt.hashSync(
@@ -144,7 +144,7 @@ class AdminService implements IAdminService {
     try {
       // check for picture
       if (!changeProfilePictureRequsetDTO.profile_picture)
-        throw new AppError("Oops file not uploaded!", 401);
+        throw new AppError("Oops file not uploaded!", 404);
       // get admin with the id
       const admin = await this.adminDao.getAdminById(
         changeProfilePictureRequsetDTO.user_id

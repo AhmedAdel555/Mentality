@@ -12,6 +12,66 @@ const routes = Router();
 
 /**
  * @openapi
+ * components:
+ *   schemas:
+ *     addAdminInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - user_name
+ *         - password
+ *         - confirm_password
+ *       properties:
+ *         email: 
+ *           type: string
+ *         user_name:
+ *           type: string
+ *         password: 
+ *           type: string
+ *         confirm_password:
+ *           type:  string
+ *     updateAdminInfoInput:
+ *       type: object
+ *       required:
+ *         - user_name
+ *         - phone_number
+ *         - address
+ *       properties:
+ *         user_name: 
+ *           type: string
+ *         phone_number:
+ *           oneOf:
+ *            - type: string
+ *            - type: null    
+ *         address:
+ *           oneOf:
+ *            - type: string
+ *            - type: null   
+ *     resetAdminPasswordInfo:
+ *       type: object
+ *       required:
+ *         - old_password
+ *         - password
+ *         - confirm_password
+ *       properties:
+ *         old_password: 
+ *           type: string
+ *         password:
+ *           type: string
+ *         confirm_password:
+ *           type:  string
+ *     changeAdminProfilePicture:
+ *       type: object
+ *       required:
+ *         - profile_picture
+ *       properties:
+ *         profile_picture: 
+ *           type: file
+ */
+
+
+/**
+ * @openapi
  * '/api/admins':
  *  post:
  *   tags:
@@ -72,40 +132,7 @@ const routes = Router();
  *       description: server error 
  */
 
-/**
- * @openapi
- * components:
- *   schemas:
- *     addAdminInput:
- *       type: object
- *       required:
- *         - email
- *         - user_name
- *         - password
- *         - confirm_password
- *       properties:
- *         email: 
- *           type: string
- *         user_name:
- *           type: string
- *         password: 
- *           type: string
- *         confirm_password:
- *           type:  string
- *     updateAdminInfoInput:
- *       type: object
- *       required:
- *         - user_name
- *         - phone_number
- *         - address
- *       properties:
- *         user_name: 
- *           type: string
- *         phone_number:
- *           type: string | null
- *         address:
- *           type:  string | null
- */
+
 routes
   .route("/")
   .post(
@@ -163,6 +190,7 @@ routes
  * @openapi
  * '/api/admins/{admin_id}':
  *  get:
+ *   tags:
  *   - Admin
  *   summary: get admin info
  *   parameters:
@@ -197,6 +225,34 @@ routes
     }
   );
 
+/**
+ * @openapi
+ * '/api/admins/reset-password':
+ *  patch:
+ *   tags:
+ *   - Admin
+ *   summary: reset password
+ *   requestBody:
+ *    required: true
+ *    content:
+ *      application/json:
+ *        schema:
+ *          $ref: '#/components/schemas/resetAdminPasswordInfo'
+ *   responses:
+ *     200:
+ *       description: get admin
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error   
+ * */  
+
 routes.patch(
   "/reset-password",
   [
@@ -220,6 +276,34 @@ routes.patch(
     adminController.resetPassword(req, res, next);
   }
 );
+
+/**
+ * @openapi
+ * '/api/admins/change-profile-picture':
+ *  patch:
+ *   tags:
+ *   - Admin
+ *   summary: change admin profile picture
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       multipart/form-data:
+ *         schema:
+ *           $ref: '#/components/schemas/changeAdminProfilePicture'
+ *   responses:
+ *     200:
+ *       description: updated profile picture
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error  
+ * */  
 
 routes.patch(
   "/change-profile-picture",

@@ -66,10 +66,10 @@ class AuthService {
           );
           return token;
         } else {
-          throw new AppError("password is incorrect", 401);
+          throw new AppError("password is incorrect", 400);
         }
       } else {
-        throw new AppError("email is not found", 401);
+        throw new AppError("email is not found", 404);
       }
     } catch (err) {
       throw new AppError(
@@ -87,7 +87,7 @@ class AuthService {
       const studentFromDB = await this.studentDAO.getStudentByEmail(
         studentRegisterRequestDto.email
       );
-      if (studentFromDB) throw new AppError("email is already exist", 409);
+      if (studentFromDB) throw new AppError("email is already exist", 400);
       // create student
       const hashedPassword = bcrypt.hashSync(
         `${studentRegisterRequestDto.password}${config.SECRETHASHINGKEY}`,
@@ -164,7 +164,7 @@ class AuthService {
         );
         if (!admin) throw new AppError("email not found", 404);
         if(admin.reset_password_token !== updateForgottenPasswordDTO.verification_code){
-          throw new AppError("verification code is incoreect", 401);
+          throw new AppError("verification code is incoreect", 400);
         }
         admin.password = bcrypt.hashSync(
           `${updateForgottenPasswordDTO.password}${config.SECRETHASHINGKEY}`,
@@ -179,7 +179,7 @@ class AuthService {
         );
         if (!instructor) throw new AppError("email not found", 404);
         if(instructor.reset_password_token !== updateForgottenPasswordDTO.verification_code){
-          throw new AppError("verification code is incoreect", 401);
+          throw new AppError("verification code is incoreect", 400);
         }
         instructor.password = bcrypt.hashSync(
           `${updateForgottenPasswordDTO.password}${config.SECRETHASHINGKEY}`,
@@ -195,7 +195,7 @@ class AuthService {
         );
         if (!student) throw new AppError("email not found", 404);
         if(student.reset_password_token !== updateForgottenPasswordDTO.verification_code){
-          throw new AppError("verification code is incoreect", 401);
+          throw new AppError("verification code is incoreect", 400);
         }
         student.password = bcrypt.hashSync(
           `${updateForgottenPasswordDTO.password}${config.SECRETHASHINGKEY}`,

@@ -6,6 +6,105 @@ import validateResult from "../../middlewares/validateInput";
 import authController from "../../auth/auth.controller";
 const routes = Router();
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     login:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *         - role
+ *       properties:
+ *         email: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         role:
+ *           type:  string
+ *           enum:
+ *            - student
+ *            - admin
+ *            - instructor
+ *     register:
+ *       type: object
+ *       required:
+ *         - email
+ *         - user_name
+ *         - password
+ *         - confirm_password
+ *       properties:
+ *         email: 
+ *           type: string
+ *         user_name:
+ *           type: string
+ *         password: 
+ *           type: string
+ *         confirm_password:
+ *           type:  string
+ *     forgetPasswordGetRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - role
+ *       properties:
+ *         email: 
+ *           type: string
+ *         role:
+ *           type:  string
+ *           enum:
+ *            - student
+ *            - admin
+ *            - instructor
+ *     forgetPasswordPostRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *         - confirm_password
+ *         - verification_code
+ *         - role
+ *       properties:
+ *         email: 
+ *           type: string
+ *         verification_code:
+ *           type: string
+ *         password: 
+ *           type: string
+ *         confirm_password:
+ *           type:  string
+ *         role:
+ *           type:  string
+ *           enum:
+ *            - student
+ *            - admin
+ *            - instructor
+ */
+
+/**
+ * @openapi
+ * '/api/auth/login':
+ *  post:
+ *   tags:
+ *   - Auth
+ *   summary:
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/login'
+ *   responses:
+ *     200:
+ *       description: login successfully
+ *     400: 
+ *       description: bad request  
+ *     404:
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
 routes.post(
   "/login",
   [
@@ -28,6 +127,30 @@ routes.post(
     AuthController.login(req, res, next);
   }
 );
+
+/**
+ * @openapi
+ * '/api/auth/register':
+ *  post:
+ *   tags:
+ *   - Auth
+ *   summary:
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/register'
+ *   responses:
+ *     201:
+ *       description: created
+ *     400: 
+ *       description: bad request  
+ *     404:
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
 
 routes.post(
   "/register",
@@ -55,6 +178,30 @@ routes.post(
   }
 );
 
+/**
+ * @openapi
+ * '/api/auth/forgot-password':
+ *  get:
+ *   tags:
+ *   - Auth
+ *   summary:
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/forgetPasswordGetRequest'
+ *   responses:
+ *     200:
+ *       description: verification code email has sent
+ *     400: 
+ *       description: bad request  
+ *     404:
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
+
 routes.get(
   "/forgot-password",
   [
@@ -69,6 +216,30 @@ routes.get(
     authController.getForgotPassowrd(req, res, next);
   }
 )
+
+/**
+ * @openapi
+ * '/api/auth/forgot-password':
+ *  post:
+ *   tags:
+ *   - Auth
+ *   summary:
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/forgetPasswordPostRequest'
+ *   responses:
+ *     200:
+ *       description: password is changed
+ *     400: 
+ *       description: bad request  
+ *     404:
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
 
 routes.post(
   "/forgot-password",
