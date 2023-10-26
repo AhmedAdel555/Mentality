@@ -324,7 +324,38 @@ routes
     }
   );
 
-
+/**
+ * @openapi
+ * '/api/courses/{course_id}/change-picture':
+ *  patch:
+ *   tags:
+ *   - Courses
+ *   summary: change course picture
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       multipart/form-data:
+ *         schema:
+ *           $ref: '#/components/schemas/updateCoursePicture'
+ *   responses:
+ *     200:
+ *       description: get course
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 
 routes.patch(
   "/:course_id/change-picture",
@@ -341,6 +372,33 @@ routes.patch(
 
 // course registration
 
+/**
+ * @openapi
+ * '/api/courses/{course_id}/register':
+ *  post:
+ *   tags:
+ *   - Courses
+ *   summary: register in course
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   responses:
+ *     201:
+ *       description: created
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
+
 routes.post(
   "/:course_id/register",
   [param("course_id").isUUID()],
@@ -351,6 +409,31 @@ routes.post(
     coursesRegistrationsController.addCoursesRegistration(req, res, next);
   }
 );
+
+/**
+ * @openapi
+ * '/api/courses/{course_id}/students':
+ *  get:
+ *   tags:
+ *   - Courses
+ *   summary: get all student courses
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all student courses 
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 
 routes.get(
   "/:course_id/students",
@@ -363,6 +446,54 @@ routes.get(
 );
 
 // lessons routes
+/**
+ * @openapi
+ * '/api/courses/{course_id}/lessons':
+ *  get:
+ *   tags:
+ *   - lessons
+ *   summary: get all course lessons
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all course lessons 
+ *     400: 
+ *       description: bad request
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  post:
+ *   tags:
+ *   - lessons
+ *   summary: get all course lessons
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/addLessonToCourse'
+ *   responses:
+ *     201:
+ *       description: created 
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 routes
   .route("/:course_id/lessons")
   .get(
@@ -381,6 +512,91 @@ routes
       lessonController.addLesson(req, res, next);
     }
   );
+
+/**
+ * @openapi
+ * '/api/courses/{course_id}/lessons/{lesson_id}':
+ *  get:
+ *   tags:
+ *   - lessons
+ *   summary: get lesson by id
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all course lessons 
+ *     400: 
+ *       description: bad request
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  patch:
+ *   tags:
+ *   - lessons
+ *   summary: update lesson
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/updateLesson'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  delete:
+ *   tags:
+ *   - lessons
+ *   summary: delete lesson
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: deleted
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 
 routes
   .route("/:course_id/lessons/:lesson_id")

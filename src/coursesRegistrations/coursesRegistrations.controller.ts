@@ -20,7 +20,7 @@ class CoursesRegistrationsContoller {
         ...req.body,
         ...req.params,
       });
-      res.status(200).json({ status: "success", data: null });
+      res.status(201).json({ status: "success", data: null });
     } catch (error) {
       next(error);
     }
