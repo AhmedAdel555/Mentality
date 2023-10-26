@@ -19,7 +19,7 @@ class AdminService implements IAdminService {
       const adminFromDB = await this.adminDao.getAdminByEmail(
         addAdminRequestDTO.email
       );
-      if (adminFromDB) throw new AppError("email is already exist", 409);
+      if (adminFromDB) throw new AppError("email is already exist", 400);
       // check for email or not ?
       const hashedPassword = bcrypt.hashSync(
         `${addAdminRequestDTO.password}${config.SECRETHASHINGKEY}`,

@@ -11,7 +11,6 @@ routes.post(
   [
     body("email")
       .trim()
-      .isEmail()
       .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
       .withMessage("please enter an valide email"),
     body("password")
@@ -35,7 +34,6 @@ routes.post(
   [
     body("email")
       .trim()
-      .isEmail()
       .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
       .withMessage("please enter a valide email"),
     body("user_name").trim().isLength({ min: 3 }),
@@ -62,7 +60,6 @@ routes.get(
   [
     body("email")
       .trim()
-      .isEmail()
       .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
       .withMessage("please enter an valide email"),
     body("role").isIn(Object.values(Roles)),
@@ -78,7 +75,6 @@ routes.post(
   [
     body("email")
       .trim()
-      .isEmail()
       .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
       .withMessage("please enter an valide email"),
     body("role").isIn(Object.values(Roles)),

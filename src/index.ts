@@ -53,7 +53,7 @@ app.use((error:AppError, req: Request,  res:Response, _next: NextFunction) => {
       }
     });
   }
-  res.status(error.statusCode || 500).json({ status: "error" , messgae: "Error in server " + error.message});
+  res.status(error.statusCode || 500).json({ status: "error" , messgae: error.message});
 })
 
 // start server

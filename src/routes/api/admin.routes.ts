@@ -9,13 +9,109 @@ import uploadProfilePicture from "../../utils/uploadProfilePictures";
 import Roles from "../../utils/roles.enum";
 const routes = Router();
 
+
+/**
+ * @openapi
+ * '/api/admins':
+ *  post:
+ *   tags:
+ *   - Admin
+ *   summary: create an admin
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/addAdminInput'
+ *   responses:
+ *     201:
+ *       description: created
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     500:
+ *       description: server error 
+ *  get:
+ *   tags:
+ *   - Admin
+ *   summary: Get all admins
+ *   responses:
+ *     200:
+ *       description: get all admins
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     500:
+ *       description: server error 
+ *  patch:
+ *   tags:
+ *   - Admin
+ *   summary: update admin info
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/updateAdminInfoInput'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     addAdminInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - user_name
+ *         - password
+ *         - confirm_password
+ *       properties:
+ *         email: 
+ *           type: string
+ *         user_name:
+ *           type: string
+ *         password: 
+ *           type: string
+ *         confirm_password:
+ *           type:  string
+ *     updateAdminInfoInput:
+ *       type: object
+ *       required:
+ *         - user_name
+ *         - phone_number
+ *         - address
+ *       properties:
+ *         user_name: 
+ *           type: string
+ *         phone_number:
+ *           type: string | null
+ *         address:
+ *           type:  string | null
+ */
 routes
   .route("/")
   .post(
     [
       body("email")
         .trim()
-        .isEmail()
         .matches("^[a-zA-Z0-9._%+-]+@gmail.com$")
         .withMessage("please enter an valide email"),
       body("user_name").trim().isLength({ min: 3 }),
@@ -62,6 +158,32 @@ routes
       adminController.updateAdmin(req, res, next);
     }
   );
+
+/**
+ * @openapi
+ * '/api/admins/{admin_id}':
+ *  get:
+ *   - Admin
+ *   summary: get admin info
+ *   parameters:
+ *    - name: admin_id
+ *      in: path
+ *      description: The id of the admin
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get admin
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error   
+ */
 
 routes
   .route("/:admin_id")
