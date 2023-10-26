@@ -15,6 +15,186 @@ import Roles from "../../utils/roles.enum";
 import Topics from "../../topics/topics.enum";
 const routes = Router();
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     addCourseRequest:
+ *       type: object
+ *       required:
+ *         - picture
+ *         - title
+ *         - level
+ *         - description
+ *         - requirements
+ *       properties:
+ *         picture: 
+ *           type: file
+ *         title: 
+ *           type: string
+ *         level:
+ *           type:  string
+ *           enum:
+ *            - beginner
+ *            - intermediate
+ *            - expert
+ *         description:
+ *           type:  string
+ *         requirements:
+ *           type:  string
+ *     updateCourseRequest:
+ *       type: object
+ *       required:
+ *         - title
+ *         - level
+ *         - description
+ *         - requirements
+ *       properties:
+ *         title: 
+ *           type: string
+ *         level:
+ *           type:  string
+ *           enum:
+ *            - beginner
+ *            - intermediate
+ *            - expert
+ *         description:
+ *           type:  string
+ *         requirements:
+ *           type:  string
+ *     updateCoursePicture:
+ *       type: object
+ *       required:
+ *         - picture
+ *       properties:
+ *         picture: 
+ *           type: file
+ *     addLessonToCourse:
+ *       type: object
+ *       required:
+ *         - title
+ *       properties:
+ *         title: 
+ *           type: string
+ *     updateLesson:
+ *       type: object
+ *       required:
+ *         - title
+ *         - lesson_order
+ *       properties:
+ *         title: 
+ *           type: string
+ *         lesson_order:
+ *           type: integer
+ *     addTopicRequest:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *         - points
+ *         - pricing_plan_id
+ *         - content_url
+ *         - topic_type
+ *       properties:
+ *         title: 
+ *           type: string
+ *         description:
+ *           type: string
+ *         points:
+ *           type: integer  
+ *         pricing_plan_id:
+ *           type: integer
+ *         content_url:
+ *           type: string
+ *         topic_type:
+ *           type: string
+ *           enum:
+ *            - tutorial
+ *            - task
+ *            - exam
+ *     updateTopicRequest:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *         - topic_order
+ *         - points
+ *         - pricing_plan_id
+ *         - content_url
+ *         - topic_type
+ *       properties:
+ *         title: 
+ *           type: string
+ *         description:
+ *           type: string
+ *         points:
+ *           type: integer  
+ *         topic_order:
+ *           type: integer
+ *         pricing_plan_id:
+ *           type: integer
+ *         content_url:
+ *           type: string
+ *         topic_type:
+ *           type: string
+ *           enum:
+ *            - tutorial
+ *            - task
+ *            - exam
+ *     finishTopic:
+ *       type: object
+ *       required:
+ *         - task_solution
+ *       properties:
+ *         task_solution: 
+ *           oneOf:
+ *            - type: string
+ *            - type: null 
+ *     addGrade:
+ *       type: object
+ *       required:
+ *         - grade
+ *       properties:
+ *         grade: 
+ *           type: integer
+ */
+
+/**
+ * @openapi
+ * '/api/courses':
+ *  post:
+ *   tags:
+ *   - Courses
+ *   summary: add course
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       multipart/form-data:
+ *         schema:
+ *           $ref: '#/components/schemas/addCourseRequest'
+ *   responses:
+ *     201:
+ *       description: created
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  get:
+ *   tags:
+ *   - Courses
+ *   summary: get all courses
+ *   responses:
+ *     200:
+ *       description: get all courses
+ *     500:
+ *       description: server error
+ */
 routes
   .route("/")
   .post(
@@ -36,6 +216,79 @@ routes
   .get((req: Request, res: Response, next: NextFunction) => {
     CoursesContoller.getAllCourses(req, res, next);
   });
+
+/**
+ * @openapi
+ * '/api/courses/{course_id}':
+ *  get:
+ *   tags:
+ *   - Courses
+ *   summary: get course
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get course
+ *     400: 
+ *       description: bad request
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  patch:
+ *   tags:
+ *   - Courses
+ *   summary: update course
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/updateCourseRequest'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  delete:
+ *   tags:
+ *   - Courses
+ *   summary: delete course
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: deleted
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 
 routes
   .route("/:course_id")
@@ -70,6 +323,8 @@ routes
       CoursesContoller.deleteCourse(req, res, next);
     }
   );
+
+
 
 routes.patch(
   "/:course_id/change-picture",
