@@ -240,7 +240,7 @@ routes
  *          $ref: '#/components/schemas/resetAdminPasswordInfo'
  *   responses:
  *     200:
- *       description: get admin
+ *       description:  updated
  *     400: 
  *       description: bad request  
  *     401: 

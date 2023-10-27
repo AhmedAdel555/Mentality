@@ -153,10 +153,13 @@ const routes = Router();
  *     addGrade:
  *       type: object
  *       required:
+ *         - student_id
  *         - grade
  *       properties:
  *         grade: 
  *           type: integer
+ *         student_id:
+ *           type: string  
  */
 
 /**
@@ -634,6 +637,66 @@ routes
   );
 
 // topics routes
+
+/**
+ * @openapi
+ * '/api/courses/{course_id}/lessons/{lesson_id}/topics':
+ *  post:
+ *   tags:
+ *   - topics
+ *   summary: add topic
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/addTopicRequest'
+ *   responses:
+ *     201:
+ *       description: created
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  get:
+ *   tags:
+ *   - topics
+ *   summary: get all lesson topics
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all lessons topics
+ *     400: 
+ *       description: bad request
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
+
 routes
   .route("/:course_id/lessons/:lesson_id/topics")
   .post(
@@ -665,6 +728,107 @@ routes
       topicsContoller.getAllLessonTopics(req, res, next);
     }
   );
+
+/**
+ * @openapi
+ * '/api/courses/{course_id}/lessons/{lesson_id}/topics/{topic_id}':
+ *  get:
+ *   tags:
+ *   - topics
+ *   summary: get topic
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *    - name: topic_id
+ *      in: path
+ *      description: The id of the topic
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all topic
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  patch:
+ *   tags:
+ *   - topics
+ *   summary: update the topic
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *    - name: topic_id
+ *      in: path
+ *      description: The id of the topic
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/updateTopicRequest'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ *  delete:
+ *   tags:
+ *   - topics
+ *   summary: delete topic
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *    - name: topic_id
+ *      in: path
+ *      description: The id of the topic
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: deleted
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 
 routes
   .route("/:course_id/lessons/:lesson_id/topics/:topic_id")
@@ -720,6 +884,37 @@ routes
     }
   );
 
+/**
+ * @openapi
+ * '/api/courses/{course_id}/lessons/{lesson_id}/topics/progress':
+ *  get:
+ *   tags:
+ *   - topics
+ *   summary: get progress of topics
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all topic
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
+  
 routes.get(
   "/:course_id/lessons/:lesson_id/topics/progress",
   [
@@ -727,12 +922,54 @@ routes.get(
     param("lesson_id").isUUID(),
     param("topic_id").isUUID(),
   ],
+  validateInput,
   isAuth,
   allowTo(Roles.Student),
   (req: Request, res: Response, next: NextFunction) => {
     studentProgressController.getStudentLessonProgress(req, res, next);
   }
 );
+
+/**
+ * @openapi
+ * '/api/courses/{course_id}/lessons/{lesson_id}/topics/{topic_id}/finished-topic':
+ *  patch:
+ *   tags:
+ *   - topics
+ *   summary: student finish topic 
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *    - name: topic_id
+ *      in: path
+ *      description: The id of the topic
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/finishTopic'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 
 routes.patch(
   "/:course_id/lessons/:lesson_id/topics/:topic_id/finished-topic",
@@ -752,6 +989,33 @@ routes.patch(
   }
 );
 
+/**
+ * @openapi
+ * '/api/courses/:course_id/tasks-submissions':
+ *  get:
+ *   tags:
+ *   - topics
+ *   summary: get all tasks submissions
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all topic
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
+
 routes.get(
   "/:course_id/tasks-submissions",
   [param("course_id").isUUID()],
@@ -762,6 +1026,47 @@ routes.get(
     studentProgressController.getAllCourseTasksSubmissions(req, res, next);
   }
 );
+
+/**
+ * @openapi
+ * '/api/courses/{course_id}/lessons/{lesson_id}/topics/{topic_id}/grade':
+ *  patch:
+ *   tags:
+ *   - topics
+ *   summary: grade the task
+ *   parameters:
+ *    - name: course_id
+ *      in: path
+ *      description: The id of the course
+ *      required: true
+ *    - name: lesson_id
+ *      in: path
+ *      description: The id of the lesson
+ *      required: true
+ *    - name: topic_id
+ *      in: path
+ *      description: The id of the topic
+ *      required: true
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/addGrade'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error
+ */
 
 routes.patch(
   "/:course_id/lessons/:lesson_id/topics/:topic_id/grade",

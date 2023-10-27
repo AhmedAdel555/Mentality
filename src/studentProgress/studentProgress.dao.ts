@@ -78,7 +78,6 @@ class StudentProgressDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -99,7 +98,6 @@ class StudentProgressDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -111,9 +109,8 @@ class StudentProgressDAO {
       const sql = `SELECT SUM(grade) AS total_grades FROM student_progress WHERE student_id = $1;`;
       const result = await connection.query(sql, [studentId]);
       connection.release();
-      return result.rows[0].total_grades;
+      return parseInt(result.rows[0].total_grades);
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -135,9 +132,8 @@ class StudentProgressDAO {
       `
       const studentProgress = await connection.query(sql, [studentId, lessonId]);
       connection.release();
-      return studentProgress.rows[0].result;
+      return studentProgress.rows[0].result === null ? [] : studentProgress.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -160,9 +156,8 @@ class StudentProgressDAO {
       const studentProgress = await connection.query(sql, [studentId, courseId]);
       connection.release();
 
-      return studentProgress.rows[0].result;
+      return studentProgress.rows[0].result === null ? [] : studentProgress.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -184,9 +179,8 @@ class StudentProgressDAO {
       `
       const studentProgress = await connection.query(sql, [StatusProgress.PENDING, courseId]);
       connection.release();
-      return studentProgress.rows[0].result;
+      return studentProgress.rows[0].result === null ? [] : studentProgress.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -208,9 +202,8 @@ class StudentProgressDAO {
       `
       const studentProgress = await connection.query(sql, [student_id, topic_id])
       connection.release();
-      return studentProgress.rows[0].result[0];
+      return studentProgress.rows[0].result === null ? undefined : studentProgress.rows[0].result[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }

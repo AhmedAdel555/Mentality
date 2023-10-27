@@ -5,7 +5,7 @@ import LessonModel from "./lesson.model";
 
 class LessonDAO {
 
-  private readonly map_lesson_object = `
+  private readonly map_lesson_object: string = `
   jsonb_agg(
     jsonb_build_object(
       'id', l.id,
@@ -48,7 +48,6 @@ class LessonDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -65,9 +64,8 @@ class LessonDAO {
 
       const lessons = await connection.query(sql, [courseId]);
       connection.release();
-      return lessons.rows[0].result;
+      return lessons.rows[0].result === null ? [] : lessons.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -81,7 +79,6 @@ class LessonDAO {
       connection.release();
       return parseInt(countLesson.rows[0].count);
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -96,9 +93,8 @@ class LessonDAO {
       WHERE l.id = $1;`;
       const lesson = await connection.query(sql, [id]);
       connection.release();
-      return lesson.rows[0].result[0];
+      return lesson.rows[0].result === null ? undefined : lesson.rows[0].result[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -117,7 +113,6 @@ class LessonDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -130,7 +125,6 @@ class LessonDAO {
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }

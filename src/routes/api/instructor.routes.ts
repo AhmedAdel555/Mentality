@@ -9,6 +9,135 @@ import uploadProfilePicture from "../../utils/uploadProfilePictures";
 import Roles from "../../utils/roles.enum";
 const routes = Router();
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     addInstructorInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - user_name
+ *         - password
+ *         - confirm_password
+ *         - title
+ *         - description
+ *       properties:
+ *         email: 
+ *           type: string
+ *         user_name:
+ *           type: string
+ *         password: 
+ *           type: string
+ *         confirm_password:
+ *           type:  string
+ *         title:
+ *           type:  string
+ *         description:
+ *           type:  string
+ *     updateInstructorInfoInput:
+ *       type: object
+ *       required:
+ *         - user_name
+ *         - phone_number
+ *         - address
+ *         - title
+ *         - description
+ *       properties:
+ *         user_name: 
+ *           type: string
+ *         phone_number:
+ *           oneOf:
+ *            - type: string
+ *            - type: null    
+ *         address:
+ *           oneOf:
+ *            - type: string
+ *            - type: null   
+ *         title:
+ *           type:  string
+ *         description:
+ *           type:  string
+ *     resetInstructorPasswordInfo:
+ *       type: object
+ *       required:
+ *         - old_password
+ *         - password
+ *         - confirm_password
+ *       properties:
+ *         old_password: 
+ *           type: string
+ *         password:
+ *           type: string
+ *         confirm_password:
+ *           type:  string
+ *     changeInstructorProfilePicture:
+ *       type: object
+ *       required:
+ *         - profile_picture
+ *       properties:
+ *         profile_picture: 
+ *           type: file
+ */
+
+
+/**
+ * @openapi
+ * '/api/instructors':
+ *  post:
+ *   tags:
+ *   - Instructors
+ *   summary: create an instructor
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/addInstructorInput'
+ *   responses:
+ *     201:
+ *       description: created
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     500:
+ *       description: server error 
+ *  get:
+ *   tags:
+ *   - Instructors
+ *   summary: Get all Instructors
+ *   responses:
+ *     200:
+ *       description: get all instructors
+ *     500:
+ *       description: server error 
+ *  patch:
+ *   tags:
+ *   - Instructors
+ *   summary: update instructor
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/updateInstructorInfoInput'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
 routes
   .route("/")
   .post(
@@ -62,6 +191,34 @@ routes
     }
   );
 
+/**
+ * @openapi
+ * '/api/instructors/reset-password':
+ *  patch:
+ *   tags:
+ *   - Instructors
+ *   summary: update instructor password
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           $ref: '#/components/schemas/resetInstructorPasswordInfo'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
+
 routes.patch(
   "/reset-password",
   [
@@ -86,6 +243,34 @@ routes.patch(
   }
 );
 
+/**
+ * @openapi
+ * '/api/instructors/change-profile-picture':
+ *  patch:
+ *   tags:
+ *   - Instructors
+ *   summary: update instructor profile picture
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       multipart/form-data:
+ *         schema:
+ *           $ref: '#/components/schemas/changeInstructorProfilePicture'
+ *   responses:
+ *     200:
+ *       description: updated
+ *     400: 
+ *       description: bad request  
+ *     401: 
+ *       description: Un Uathorized
+ *     403:
+ *       description: Forbidden
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
+
 routes.patch(
   "/change-profile-picture",
   uploadProfilePicture.single("profile_picture"),
@@ -97,6 +282,29 @@ routes.patch(
   }
 );
 
+/**
+ * @openapi
+ * '/api/instructors/{instructor_id}':
+ *  get:
+ *   tags:
+ *   - Instructors
+ *   summary: Get all Instructors
+ *   parameters:
+ *    - name: instructor_id
+ *      in: path
+ *      description: The id of the instructor
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get instructor
+ *     400: 
+ *       description: bad request  
+ *     404: 
+ *       description: Not found
+ *     500:
+ *       description: server error 
+ */
+
 routes
   .route("/:instructor_id")
   .get(
@@ -106,6 +314,27 @@ routes
       InstructorController.getInstructor(req, res, next);
     }
   );
+
+/**
+ * @openapi
+ * '/api/instructors/{instructor_id}/courses':
+ *  get:
+ *   tags:
+ *   - Instructors
+ *   summary: Get Instructor courses
+ *   parameters:
+ *    - name: instructor_id
+ *      in: path
+ *      description: The id of the instructor
+ *      required: true
+ *   responses:
+ *     200:
+ *       description: get all instructors
+ *     400: 
+ *       description: bad request  
+ *     500:
+ *       description: server error 
+ */
 
 routes.get(
   "/:instructor_id/courses",

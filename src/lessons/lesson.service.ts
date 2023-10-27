@@ -41,7 +41,7 @@ class LessonService implements ILessonService {
         if(!course) throw new AppError("course not found", 404);
 
         const lessons = await this.lessonDAO.getAllCourseLessons(courseId);
-
+        console.log(lessons);
         const courseLessons:LessonResponsDTO[]  = lessons.map((lesson, index) => {
             return {
                id: lesson.id,

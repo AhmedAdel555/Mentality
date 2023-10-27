@@ -33,6 +33,7 @@ class InstructorDAO {
       const sql = `SELECT * from instructors`;
       const instructors = await connection.query(sql);
       connection.release();
+      console.log(instructors)
       return instructors.rows;
     } catch (err) {
       if (connection) connection.release();
@@ -47,6 +48,7 @@ class InstructorDAO {
       const sql = `SELECT * from instructors WHERE id = $1`;
       const instructor = await connection.query(sql, [id]);
       connection.release();
+      console.log(instructor)
       return instructor.rows[0];
     } catch (err) {
       if (connection) connection.release();

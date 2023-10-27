@@ -18,7 +18,6 @@ class PricingPlanDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -33,7 +32,6 @@ class PricingPlanDAO {
       connection.release();
       return pricingPlans.rows;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -47,7 +45,6 @@ class PricingPlanDAO {
       connection.release();
       return pricingPlan.rows[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -67,7 +64,6 @@ class PricingPlanDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -80,7 +76,6 @@ class PricingPlanDAO {
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }

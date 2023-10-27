@@ -58,7 +58,6 @@ class CoursesRegistrationsDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -76,9 +75,8 @@ class CoursesRegistrationsDAO {
       WHERE cr.course_id = $1;`;
       const courseRegistrations = await connection.query(sql, [courseId]);
       connection.release();
-      return courseRegistrations.rows[0].result;
+      return courseRegistrations.rows[0].result === null ? [] : courseRegistrations.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -96,9 +94,8 @@ class CoursesRegistrationsDAO {
     WHERE cr.student_id = $1;`;
     const courseRegistrations = await connection.query(sql, [studentId]);
     connection.release();
-    return courseRegistrations.rows[0].result;
+    return courseRegistrations.rows[0].result === null ? [] : courseRegistrations.rows[0].result;
   } catch (err) {
-    if (connection) connection.release();
     throw new AppError((err as Error).message, 500);
   }
 }
@@ -116,9 +113,8 @@ class CoursesRegistrationsDAO {
       WHERE cr.id = $1;`;
       const courseRegistration = await connection.query(sql, [id]);
       connection.release();
-      return courseRegistration.rows[0].result[0];
+      return courseRegistration.rows[0].result === null ? undefined : courseRegistration.rows[0].result[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -136,9 +132,8 @@ class CoursesRegistrationsDAO {
       WHERE cr.course_id = $1 AND cr.student_id = $2;`;
       const courseRegistration = await connection.query(sql, [course_id, student_id]);
       connection.release();
-      return courseRegistration.rows[0].result[0];
+      return courseRegistration.rows[0].result === null ? undefined : courseRegistration.rows[0].result[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -158,7 +153,6 @@ class CoursesRegistrationsDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }

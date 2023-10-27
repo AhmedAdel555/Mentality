@@ -44,7 +44,6 @@ class CoursesDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -60,9 +59,8 @@ class CoursesDAO {
       `;
       const courses = await connection.query(sql);
       connection.release();
-      return courses.rows[0].result;
+      return  courses.rows[0].result === null ? [] : courses.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -81,9 +79,8 @@ class CoursesDAO {
       `;
       const instructorCourses = await connection.query(sql, [instructorId]);
       connection.release();
-      return instructorCourses.rows[0].result;
+      return instructorCourses.rows[0].result === null ? [] : instructorCourses.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -99,9 +96,8 @@ class CoursesDAO {
       where c.id = $1;`;
       const course = await connection.query(sql, [id]);
       connection.release();
-      return course.rows[0].result[0];
+      return course.rows[0].result === null ? undefined : course.rows[0].result[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -125,7 +121,6 @@ class CoursesDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -139,7 +134,6 @@ class CoursesDAO {
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }

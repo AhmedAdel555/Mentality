@@ -148,7 +148,7 @@ class InstructorService implements IInstructorService {
   public async changeProfilePicture(changeProfilePictureRequsetDTO: ChangeProfilePictureRequsetDTO): Promise<string> {
     try {
       if (!changeProfilePictureRequsetDTO.profile_picture)
-          throw new AppError("Oops file not uploaded!", 401);
+          throw new AppError("Oops file not uploaded!", 404);
       // get admin by id
       const instructor = await this.instructorDAO.getInstructorById(changeProfilePictureRequsetDTO.user_id);
       if(!instructor) throw new AppError("instructor not found", 404);
