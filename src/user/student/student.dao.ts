@@ -19,7 +19,6 @@ class StudentDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -33,7 +32,6 @@ class StudentDAO {
       connection.release();
       return students.rows;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -47,7 +45,6 @@ class StudentDAO {
       connection.release();
       return student.rows[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);    
     }
   }
@@ -61,7 +58,6 @@ class StudentDAO {
       connection.release();
       return student.rows[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);    }
   }
 
@@ -79,7 +75,6 @@ class StudentDAO {
            student.profile_picture, student.reset_password_token, student.points, student.id]);
         connection.release();
       } catch (err) {
-        if (connection) connection.release();
         throw new AppError((err as Error).message, 500);
       }
   }
@@ -92,7 +87,6 @@ class StudentDAO {
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
         }
   }

@@ -106,7 +106,7 @@ class StudentProgressDAO {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
-      const sql = `SELECT SUM(grade) AS total_grades FROM student_progress WHERE student_id = $1;`;
+      const sql = `SELECT COALESCE(SUM(grade),0) AS total_grades FROM student_progress WHERE student_id = $1;`;
       const result = await connection.query(sql, [studentId]);
       connection.release();
       return parseInt(result.rows[0].total_grades);

@@ -21,7 +21,6 @@ class InstructorDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -36,7 +35,6 @@ class InstructorDAO {
       console.log(instructors)
       return instructors.rows;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -51,7 +49,6 @@ class InstructorDAO {
       console.log(instructor)
       return instructor.rows[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -65,7 +62,6 @@ class InstructorDAO {
       connection.release();
       return instructor.rows[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -85,7 +81,6 @@ class InstructorDAO {
           instructor.id]);
         connection.release();
       } catch (err) {
-        if (connection) connection.release();
         throw new AppError((err as Error).message, 500);
       }
   }
@@ -98,7 +93,6 @@ class InstructorDAO {
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }

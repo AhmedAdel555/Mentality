@@ -67,7 +67,6 @@ class TopicDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -86,7 +85,7 @@ class TopicDAO {
       `
       const topics = await connection.query(sql, [LessonId]);
       connection.release();
-      return topics.rows[0].result;
+      return topics.rows[0].result === null ? [] : topics.rows[0].result;
     } catch (err) {
       if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
@@ -102,7 +101,6 @@ class TopicDAO {
       connection.release();
       return parseInt(countTopics.rows[0].count);;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -120,9 +118,8 @@ class TopicDAO {
       WHERE t.id = $1;`;
       const topic = await connection.query(sql, [id]);
       connection.release();
-      return topic.rows[0].result[0];
+      return topic.rows[0].result === null ? undefined :  topic.rows[0].result[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -143,7 +140,6 @@ class TopicDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -156,7 +152,6 @@ class TopicDAO {
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }

@@ -17,7 +17,6 @@ class AdminDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -31,7 +30,6 @@ class AdminDAO {
       connection.release();
       return admins.rows;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -45,7 +43,6 @@ class AdminDAO {
       connection.release();
       return admin.rows[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -59,7 +56,6 @@ class AdminDAO {
       connection.release();
       return admin.rows[0];
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -83,7 +79,6 @@ class AdminDAO {
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);    
     }
   }

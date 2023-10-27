@@ -44,7 +44,6 @@ class SubscriptionDAO{
       ]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -62,9 +61,8 @@ class SubscriptionDAO{
 
       const subscriptions = await connection.query(sql);
       connection.release();
-      return subscriptions.rows[0].result;
+      return subscriptions.rows[0].result === null ? [] : subscriptions.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -79,9 +77,8 @@ class SubscriptionDAO{
       WHERE sp.id = $1;`;
       const subscription = await connection.query(sql, [id]);
       connection.release();
-      return subscription.rows[0].result[0];
+      return subscription.rows[0].result === null ? undefined : subscription.rows[0].result[0] ;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -100,9 +97,8 @@ class SubscriptionDAO{
 
       const subscriptions = await connection.query(sql, [studentId]);
       connection.release();
-      return subscriptions.rows[0].result;
+      return subscriptions.rows[0].result === null ? [] :  subscriptions.rows[0].result;
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
@@ -116,7 +112,6 @@ class SubscriptionDAO{
       await connection.query(sql, [id]);
       connection.release();
     } catch (err) {
-      if (connection) connection.release();
       throw new AppError((err as Error).message, 500);
     }
   }
