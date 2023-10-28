@@ -473,7 +473,7 @@ routes.get(
  *  post:
  *   tags:
  *   - lessons
- *   summary: get all course lessons
+ *   summary: add lesson
  *   parameters:
  *    - name: course_id
  *      in: path
@@ -712,7 +712,7 @@ routes
         return typeof value === "number";
       }),
       body("content_url").trim().notEmpty(),
-      body("topic_type").isIn([Object.values(Topics)]),
+      body("topic_type").isIn(Object.values(Topics))
     ],
     validateInput,
     isAuth,
@@ -861,7 +861,7 @@ routes
         return typeof value === "number";
       }),
       body("content_url").trim().notEmpty(),
-      body("topic_type").isIn([Object.values(Topics)]),
+      body("topic_type").isIn(Object.values(Topics)),
     ],
     validateInput,
     isAuth,
@@ -886,7 +886,7 @@ routes
 
 /**
  * @openapi
- * '/api/courses/{course_id}/lessons/{lesson_id}/topics/progress':
+ * '/api/courses/{course_id}/lessons/{lesson_id}/progress':
  *  get:
  *   tags:
  *   - topics
@@ -916,12 +916,8 @@ routes
  */
   
 routes.get(
-  "/:course_id/lessons/:lesson_id/topics/progress",
-  [
-    param("course_id").isUUID(),
-    param("lesson_id").isUUID(),
-    param("topic_id").isUUID(),
-  ],
+  "/:course_id/lessons/:lesson_id/progress",
+  [param("course_id").isUUID(), param("lesson_id").isUUID()],
   validateInput,
   isAuth,
   allowTo(Roles.Student),
@@ -991,7 +987,7 @@ routes.patch(
 
 /**
  * @openapi
- * '/api/courses/:course_id/tasks-submissions':
+ * '/api/courses/{course_id}/tasks-submissions':
  *  get:
  *   tags:
  *   - topics

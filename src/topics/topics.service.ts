@@ -139,6 +139,11 @@ class TopicServices implements ITopicServices {
       if (updateTopicRequestDTO.user_id !== topic.lesson.course.instructor.id)
         throw new AppError("you do not have permision", 403);
 
+      const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(
+        updateTopicRequestDTO.pricing_plan_id
+      );
+      if (!pricingPlan) throw new AppError("pricing plan not found", 404);
+      
       topic.title = updateTopicRequestDTO.title;
       topic.description = updateTopicRequestDTO.description;
       topic.content_url = updateTopicRequestDTO.content_url;

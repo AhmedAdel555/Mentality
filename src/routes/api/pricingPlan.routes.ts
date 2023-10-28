@@ -65,10 +65,10 @@ routes
   .route("/")
   .post(
     [
-      body("plan_name").trim().notEmpty().isLength({ min: 3 }),
+      body("plan_name").trim().notEmpty().isLength({ min: 2 }),
       body("attributes").trim().notEmpty(),
-      body("price").trim().custom((value, {req}) => {
-        return (typeof value === 'number')
+      body("price").custom((value, {req}) => {
+        return typeof value === 'number'
     })
     ],
     validateInput,
@@ -167,8 +167,8 @@ routes
       param("pricing_plan_id").isNumeric(),
       body("plan_name").trim().notEmpty().isLength({ min: 3 }),
       body("attributes").trim().notEmpty(),
-      body("price").trim().custom((value, {req}) => {
-        return (typeof value === 'number')
+      body("price").custom((value, {req}) => {
+        return typeof value === 'number'
     }),
     ],
     validateInput,

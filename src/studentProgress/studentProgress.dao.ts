@@ -20,7 +20,7 @@ class StudentProgressDAO {
         'reset_password_token', s.reset_password_token,
         'points', s.points
       ),
-      'topic, jsonb_build_object(
+      'topic', jsonb_build_object(
         'id', t.id,
         'title', t.title,
         'description', t.description,

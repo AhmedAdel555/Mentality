@@ -288,7 +288,7 @@ routes.patch(
  *  get:
  *   tags:
  *   - Instructors
- *   summary: Get all Instructors
+ *   summary: Get instructor by id
  *   parameters:
  *    - name: instructor_id
  *      in: path

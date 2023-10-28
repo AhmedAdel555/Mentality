@@ -22,7 +22,7 @@ class InstructorService implements IInstructorService {
   public async addInstructor(addInstructorRequestDTO: AddInstructorRequestDTO): Promise<void> {
     try{
       const instractorFromDB = await this.instructorDAO.getInstructorByEmail(addInstructorRequestDTO.email);
-      if(instractorFromDB) throw new AppError("email is already exist", 409);
+      if(instractorFromDB) throw new AppError("email is already exist", 400);
       const hashedPassword = bcrypt.hashSync(`${addInstructorRequestDTO.password}${config.SECRETHASHINGKEY}`,10)
       const instructor = new InstructorModel(
         addInstructorRequestDTO.user_name,
@@ -128,7 +128,7 @@ class InstructorService implements IInstructorService {
       if(!instructor) throw new AppError("instructor not found", 404);
 
       if (!bcrypt.compareSync(`${resetPasswordRequestDTO.old_password}${config.SECRETHASHINGKEY}`,instructor.password)) {
-        throw new AppError("password is incorrect", 401);
+        throw new AppError("password is incorrect", 400);
       }
 
       instructor.password = bcrypt.hashSync(
