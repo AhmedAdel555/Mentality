@@ -101,10 +101,14 @@ class AuthService {
       );
       const pricingPlan = await this.pricingPlanDAO.getPricingPlanById(1);
       if (!pricingPlan) throw new AppError("oops there is a problem", 404);
-      const subscription = new SubscriptionModel(student, pricingPlan);
       // save student
       await this.studentDAO.createStudent(student);
       // student subscribe in basic plan by defult
+      const newStudent = await this.studentDAO.getStudentByEmail(
+        studentRegisterRequestDto.email
+      );
+      if(!newStudent) throw new AppError("student not found", 404);
+      const subscription = new SubscriptionModel(newStudent, pricingPlan);
       await this.subscriptionDAO.createSubscription(subscription);
     } catch (err) {
       throw new AppError(
