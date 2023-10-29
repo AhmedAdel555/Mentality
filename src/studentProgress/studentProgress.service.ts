@@ -187,7 +187,7 @@ class StudentProgressService implements IstudentProgressServiceInterface {
         throw new AppError("you don't have permission", 403);
       }
       if(gradeTaskRequestDTO.grade > topicProgress.topic.points){
-        throw new Error("grade must be lesst or equal than points of task");
+        throw new AppError("grade must be lesst or equal than points of task", 400);
       }
       topicProgress.grade = gradeTaskRequestDTO.grade;
       topicProgress.status = StatusProgress.FINISHED;
