@@ -1,6 +1,7 @@
 import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 import LessonDAO from "../lessons/lesson.dao";
 import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
+import StudentProgressDAO from "../studentProgress/studentProgress.dao";
 import SubscriptionDAO from "../subscription/subscription.dao";
 import AppError from "../utils/appError";
 import Roles from "../utils/roles.enum";
@@ -20,7 +21,8 @@ class TopicServices implements ITopicServices {
     private readonly lessonDAO: LessonDAO,
     private readonly pricingPlanDAO: PricingPlanDAO,
     private readonly courseRegistrationDAO: CoursesRegistrationsDAO,
-    private readonly subscriptionDAO: SubscriptionDAO
+    private readonly subscriptionDAO: SubscriptionDAO,
+    private readonly studentProgressDAO: StudentProgressDAO
   ) {}
 
   public async addTopic(addTopicRequestDTO: AddTopicRequestDTO): Promise<void> {
@@ -52,7 +54,9 @@ class TopicServices implements ITopicServices {
         addTopicRequestDTO.topic_type
       );
 
-      await this.topicDAO.createTopic(topic);
+      const topicId = await this.topicDAO.createTopic(topic);
+
+      await this.studentProgressDAO.addTopicToProgress(lesson.course.id, topicId);
 
     } catch (err) {
       throw new AppError(

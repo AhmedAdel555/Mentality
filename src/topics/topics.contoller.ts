@@ -5,6 +5,7 @@ import LessonDAO from "../lessons/lesson.dao";
 import PricingPlanDAO from "../pricingPlan/pricingPlan.dao";
 import CoursesRegistrationsDAO from "../coursesRegistrations/coursesRegistrations.dao";
 import SubscriptionDAO from "../subscription/subscription.dao";
+import StudentProgressDAO from "../studentProgress/studentProgress.dao";
 
 class TopicsController {
   constructor(private readonly topicService: TopicServices){};
@@ -21,7 +22,7 @@ class TopicsController {
   public async getAllLessonTopics(req: Request, res: Response, next: NextFunction){
     try{
       const topics = await this.topicService.getAllLessonTopics(req.params.lesson_id)
-      res.status(201).json({status: "success", data: topics})
+      res.status(200).json({status: "success", data: topics})
     }catch(error){
       next(error);
     }
@@ -30,7 +31,7 @@ class TopicsController {
   public async getTopic(req: Request, res: Response, next: NextFunction){
     try{
       const topic = await this.topicService.getTopic({...req.params, ...req.body})
-      res.status(201).json({status: "success", data: topic})
+      res.status(200).json({status: "success", data: topic})
     }catch(error){
       next(error);
     }
@@ -60,5 +61,6 @@ export default new TopicsController(new TopicServices(
   new LessonDAO(),
   new PricingPlanDAO(),
   new CoursesRegistrationsDAO(),
-  new SubscriptionDAO()
+  new SubscriptionDAO(),
+  new StudentProgressDAO()
 ));

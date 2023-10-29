@@ -96,6 +96,7 @@ class StudentProgressService implements IstudentProgressServiceInterface {
           finishTopicRequestDTO.user_id
         )
       )[0].pricing_plan;
+
       if (topicProgress.topic.pricing_plan.price > currentStudentPlan.price) {
         throw new AppError("upgrade to finish this topic", 403);
       }
@@ -109,11 +110,13 @@ class StudentProgressService implements IstudentProgressServiceInterface {
       } else if (topicProgress.topic.topic_type === Topics.TUTORIAL) {
         topicProgress.status = StatusProgress.FINISHED;
         topicProgress.grade = topicProgress.topic.points;
-        await this.changeCourseProgress(finishTopicRequestDTO.user_id, topicProgress);
-        await this.changeStudentPoints(finishTopicRequestDTO.user_id);
       }
       // update user progress
       await this.studentProgressDAO.updateStudentProgress(topicProgress);
+      if(topicProgress.topic.topic_type === Topics.TUTORIAL){
+        await this.changeCourseProgress(finishTopicRequestDTO.user_id, topicProgress);
+        await this.changeStudentPoints(finishTopicRequestDTO.user_id);
+      }
 
     } catch (err) {
       throw new AppError(
@@ -183,6 +186,9 @@ class StudentProgressService implements IstudentProgressServiceInterface {
       if(topicProgress.topic.lesson.course.instructor.id !== gradeTaskRequestDTO.user_id){
         throw new AppError("you don't have permission", 403);
       }
+      if(gradeTaskRequestDTO.grade > topicProgress.topic.points){
+        throw new Error("grade must be lesst or equal than points of task");
+      }
       topicProgress.grade = gradeTaskRequestDTO.grade;
       topicProgress.status = StatusProgress.FINISHED;
       await this.studentProgressDAO.updateStudentProgress(topicProgress);
@@ -216,7 +222,7 @@ class StudentProgressService implements IstudentProgressServiceInterface {
       if (
         studentCourses[i].course.id === topicProgress.topic.lesson.course.id
       ) {
-        studentCourses[i].course_progress = newProgress;
+        studentCourses[i].course_progress = Math.round(newProgress * 100);
         await this.courseRegistrationDAO.updateCourseRegistration(
           studentCourses[i]
         );

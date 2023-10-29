@@ -105,7 +105,8 @@ const routes = Router();
  *         pricing_plan_id:
  *           type: integer
  *         content_url:
- *           type: string
+ *            - type: string
+ *            - type: null 
  *         topic_type:
  *           type: string
  *           enum:
@@ -134,7 +135,8 @@ const routes = Router();
  *         pricing_plan_id:
  *           type: integer
  *         content_url:
- *           type: string
+ *            - type: string
+ *            - type: null 
  *         topic_type:
  *           type: string
  *           enum:
@@ -711,7 +713,9 @@ routes
       body("pricing_plan_id").custom((value, { req }) => {
         return typeof value === "number";
       }),
-      body("content_url").trim().notEmpty(),
+      body("content_url").custom((value, { req }) => {
+        return value === null || typeof value === "string"
+      }),
       body("topic_type").isIn(Object.values(Topics))
     ],
     validateInput,
@@ -860,7 +864,9 @@ routes
       body("pricing_plan_id").custom((value, { req }) => {
         return typeof value === "number";
       }),
-      body("content_url").trim().notEmpty(),
+      body("content_url").custom((value, { req }) => {
+        return value === null || typeof value === "string"
+      }),
       body("topic_type").isIn(Object.values(Topics)),
     ],
     validateInput,

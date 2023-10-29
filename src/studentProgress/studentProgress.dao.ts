@@ -67,6 +67,21 @@ class StudentProgressDAO {
   ) AS result 
   `
 
+  public async addTopicToProgress(courseId:string, TopicId:string): Promise<void>{
+    let connection: PoolClient | null = null;
+    try {
+      connection = await db.connect();
+      const sql = `SELECT add_topic_to_progress($1, $2);`;
+      await connection.query(sql, [
+        courseId,
+        TopicId
+      ]);
+      connection.release();
+    } catch (err) {
+      throw new AppError((err as Error).message, 500);
+    }
+  }
+
   public async populateStudentProgressForCourse(courseId:string, studentId:string): Promise<void>{
     let connection: PoolClient | null = null;
     try {

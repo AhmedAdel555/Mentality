@@ -49,13 +49,14 @@ class TopicDAO {
   ) AS result 
   `
 
-  public async createTopic(topic: TopicModel): Promise<void> {
+  public async createTopic(topic: TopicModel): Promise<string> {
     let connection: PoolClient | null = null;
     try {
       connection = await db.connect();
       const sql = `INSERT INTO topics(title, description, topic_order, points, lesson_id, pricing_plan_id, content_url, topic_type)
-                    Values ($1, $2, $3, $4, $5, $6, $7, $8);`;
-      await connection.query(sql, [
+                    Values ($1, $2, $3, $4, $5, $6, $7, $8)
+                    RETURNING id`;
+      const id = await connection.query(sql, [
           topic.title,
           topic.description,
           topic.topic_order,
@@ -66,6 +67,7 @@ class TopicDAO {
           topic.topic_type
       ]);
       connection.release();
+      return id.rows[0].id
     } catch (err) {
       throw new AppError((err as Error).message, 500);
     }

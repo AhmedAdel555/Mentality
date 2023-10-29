@@ -56,12 +56,11 @@ class SubscriptionDAO{
         SELECT ${this.map_subscription_object}
         FROM subscriptions sp JOIN students s ON sp.student_id = s.id
         JOIN pricing_plans p ON sp.pricing_plan_id = p.id
-        ORDER BY sp.date;
       `;
 
       const subscriptions = await connection.query(sql);
       connection.release();
-      return subscriptions.rows[0].result === null ? [] : subscriptions.rows[0].result;
+      return subscriptions.rows[0].result === null ? [] : subscriptions.rows[0].result.sort((a: SubscriptionModel, b: SubscriptionModel) => new Date(b.date).getTime() - new Date(a.date).getTime());;
     } catch (err) {
       throw new AppError((err as Error).message, 500);
     }
@@ -92,12 +91,11 @@ class SubscriptionDAO{
         FROM subscriptions sp JOIN students s ON sp.student_id = s.id
         JOIN pricing_plans p ON sp.pricing_plan_id = p.id
         WHERE sp.student_id = $1
-        ORDER BY sp.date;
       `;
 
       const subscriptions = await connection.query(sql, [studentId]);
       connection.release();
-      return subscriptions.rows[0].result === null ? [] :  subscriptions.rows[0].result;
+      return subscriptions.rows[0].result === null ? [] :  subscriptions.rows[0].result.sort((a: SubscriptionModel, b: SubscriptionModel) => new Date(b.date).getTime() - new Date(a.date).getTime());
     } catch (err) {
       throw new AppError((err as Error).message, 500);
     }
